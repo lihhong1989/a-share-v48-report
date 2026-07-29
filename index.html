@@ -1,0 +1,987 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#f5f5f7">
+  <meta name="description" content="A股六步法 v4.8 机构实战版全池研究报告">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta property="og:title" content="A股六步法 v4.8 股票分析报告">
+  <meta property="og:description" content="市场状态、主线生命周期、ETF映射、评分与风险观察">
+  <title>A股六步法 v4.8 股票分析报告</title>
+  <style>
+    :root {
+      --bg: #f5f5f7;
+      --card: rgba(255, 255, 255, .92);
+      --text: #1d1d1f;
+      --muted: #6e6e73;
+      --line: rgba(0, 0, 0, .075);
+      --blue: #0071e3;
+      --blue-soft: #e8f2ff;
+      --green: #248a3d;
+      --green-soft: #e8f7ed;
+      --orange: #c65d00;
+      --orange-soft: #fff2e4;
+      --red: #d70015;
+      --red-soft: #fff0f1;
+      --shadow: 0 12px 36px rgba(0, 0, 0, .07);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --space: clamp(16px, 3vw, 30px);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      overflow-x: hidden;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 85% -10%, rgba(0, 113, 227, .11), transparent 28rem),
+        var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC",
+        "Helvetica Neue", Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.62;
+    }
+
+    button { font: inherit; }
+    .shell { width: min(1240px, calc(100% - 28px)); margin: 0 auto; padding: 24px 0 72px; }
+    .topbar {
+      position: sticky;
+      z-index: 20;
+      top: max(10px, env(safe-area-inset-top));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 28px;
+      padding: 12px 14px 12px 18px;
+      border: 1px solid rgba(255,255,255,.75);
+      border-radius: 18px;
+      background: rgba(255,255,255,.78);
+      box-shadow: 0 10px 30px rgba(0,0,0,.06);
+      backdrop-filter: saturate(160%) blur(18px);
+      -webkit-backdrop-filter: saturate(160%) blur(18px);
+    }
+    .brand { min-width: 0; }
+    .eyebrow {
+      margin: 0 0 2px;
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .brand-title { margin: 0; font-size: 17px; font-weight: 760; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+    .btn {
+      min-height: 38px;
+      padding: 8px 13px;
+      border: 0;
+      border-radius: 999px;
+      color: var(--text);
+      background: #ededf0;
+      cursor: pointer;
+      transition: transform .15s ease, background .15s ease;
+    }
+    .btn.primary { color: #fff; background: var(--blue); }
+    .btn:active { transform: scale(.97); }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(28px, 6vw, 68px);
+      border-radius: 34px;
+      color: #fff;
+      background: linear-gradient(135deg, #151516 0%, #26282d 55%, #063f7a 100%);
+      box-shadow: var(--shadow);
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 340px;
+      height: 340px;
+      right: -90px;
+      top: -150px;
+      border-radius: 50%;
+      background: rgba(36, 143, 255, .26);
+      filter: blur(2px);
+    }
+    .hero-copy { position: relative; z-index: 1; max-width: 880px; }
+    .hero h1 {
+      margin: 8px 0 14px;
+      max-width: 14ch;
+      font-size: clamp(36px, 7vw, 72px);
+      line-height: 1.04;
+      letter-spacing: -.045em;
+    }
+    .hero p { margin: 0; color: rgba(255,255,255,.74); font-size: clamp(15px, 2vw, 20px); }
+    .status-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 38px;
+    }
+    .status {
+      min-width: 0;
+      padding: 17px;
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 18px;
+      background: rgba(255,255,255,.08);
+      backdrop-filter: blur(12px);
+    }
+    .status span { display: block; color: rgba(255,255,255,.58); font-size: 12px; }
+    .status strong { display: block; margin-top: 5px; font-size: clamp(16px, 2vw, 23px); overflow-wrap: anywhere; }
+
+    .section { margin-top: clamp(38px, 7vw, 76px); }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin: 0 2px 18px; }
+    .section h2 { margin: 0; font-size: clamp(27px, 4vw, 42px); letter-spacing: -.035em; line-height: 1.08; }
+    .section-note { max-width: 640px; margin: 8px 0 0; color: var(--muted); font-size: 16px; font-weight: 560; line-height: 1.65; }
+    .grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 16px; }
+    .card {
+      grid-column: span 4;
+      min-width: 0;
+      padding: var(--space);
+      border: 1px solid rgba(255,255,255,.8);
+      border-radius: var(--radius-xl);
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+    .card.span-6 { grid-column: span 6; }
+    .card.span-8 { grid-column: span 8; }
+    .card.span-12 { grid-column: 1 / -1; }
+    .card h3 { margin: 0 0 14px; font-size: 21px; font-weight: 780; letter-spacing: -.015em; }
+    .metric { font-size: clamp(28px, 4vw, 44px); font-weight: 760; letter-spacing: -.04em; line-height: 1; }
+    .metric-label { margin-top: 10px; color: var(--muted); font-size: 16px; font-weight: 650; line-height: 1.55; }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin: 2px 4px 2px 0;
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: var(--blue);
+      background: var(--blue-soft);
+      font-size: 14px;
+      font-weight: 760;
+    }
+    .chip.green { color: var(--green); background: var(--green-soft); }
+    .chip.orange { color: var(--orange); background: var(--orange-soft); }
+    .chip.red { color: var(--red); background: var(--red-soft); }
+    .muted { color: var(--muted); }
+    .summary { font-size: clamp(19px, 2vw, 23px); font-weight: 560; line-height: 1.72; }
+
+    .timeline { display: grid; grid-template-columns: repeat(6, minmax(110px, 1fr)); gap: 10px; min-width: 760px; }
+    .stage {
+      position: relative;
+      padding: 18px 14px;
+      border-radius: var(--radius-md);
+      background: #f2f2f5;
+      color: var(--muted);
+    }
+    .stage.active { color: #fff; background: var(--blue); box-shadow: 0 10px 24px rgba(0,113,227,.22); }
+    .stage strong, .stage span { display: block; }
+    .stage strong { font-size: 17px; font-weight: 800; }
+    .stage span { margin-top: 6px; font-size: 14px; font-weight: 620; opacity: .82; }
+    .market-moves {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 9px;
+    }
+    .move-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 44px;
+      padding: 10px 13px;
+      border-radius: 14px;
+      color: #fff;
+      font-size: 17px;
+      font-weight: 820;
+      line-height: 1;
+      white-space: nowrap;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.14);
+    }
+    .move-chip.up { background: #e53935; }
+    .move-chip.down { background: #139b5b; }
+    .move-chip.flat { background: #86868b; }
+    .move-name { color: rgba(255,255,255,.88); font-size: 14px; font-weight: 760; }
+    .move-value { color: #fff; font-variant-numeric: tabular-nums; }
+
+    .table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 0 calc(var(--space) * -1) calc(var(--space) * -1);
+      padding: 0 var(--space) var(--space);
+    }
+    table { width: 100%; min-width: 1040px; border-collapse: collapse; font-size: 16px; line-height: 1.58; }
+    th, td { padding: 17px 15px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    td { font-weight: 560; }
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      color: var(--muted);
+      background: rgba(255,255,255,.96);
+      font-size: 14px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    tbody tr:last-child td { border-bottom: 0; }
+    th.col-sector, td.col-sector,
+    th.col-direction, td.col-direction,
+    th.col-group, td.col-group,
+    th.col-stock, td.col-stock,
+    th.col-etf, td.col-etf,
+    th.col-asset, td.col-asset {
+      min-width: 164px;
+    }
+    td.col-sector, td.col-direction, td.col-group,
+    td.col-stock, td.col-etf, td.col-asset {
+      color: var(--text);
+      font-size: 17px;
+      font-weight: 800;
+      line-height: 1.55;
+    }
+    th.col-stage, td.col-stage,
+    th.col-status, td.col-status,
+    th.col-role, td.col-role,
+    th.col-action, td.col-action {
+      min-width: 132px;
+    }
+    td.col-stage, td.col-status, td.col-role, td.col-action {
+      font-size: 16px;
+      font-weight: 760;
+    }
+    .cell-tile {
+      display: flex;
+      width: 100%;
+      min-height: 58px;
+      align-items: center;
+      padding: 13px 15px;
+      border-radius: 16px;
+      color: inherit;
+      background: #f2f2f5;
+    }
+    .score { font-weight: 800; color: var(--blue); }
+    .rank { display: inline-grid; width: 28px; height: 28px; place-items: center; border-radius: 9px; background: #f0f0f3; font-weight: 800; }
+
+    .advice-list { display: grid; gap: 12px; }
+    .advice {
+      display: grid;
+      grid-template-columns: minmax(120px, .8fr) minmax(0, 2.2fr);
+      gap: 18px;
+      padding: 18px;
+      border-radius: var(--radius-lg);
+      background: #f5f5f7;
+    }
+    .advice strong { font-size: 19px; font-weight: 800; }
+    .advice p { margin: 0; color: var(--muted); font-size: 16px; font-weight: 560; line-height: 1.65; }
+
+    .footnote {
+      margin-top: 42px;
+      padding: 22px;
+      border-radius: var(--radius-lg);
+      color: var(--muted);
+      background: rgba(255,255,255,.62);
+      font-size: 13px;
+    }
+    .empty { color: var(--muted); font-style: italic; }
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(24px + env(safe-area-inset-bottom));
+      z-index: 99;
+      transform: translate(-50%, 20px);
+      padding: 10px 16px;
+      border-radius: 999px;
+      color: #fff;
+      background: rgba(29,29,31,.9);
+      opacity: 0;
+      pointer-events: none;
+      transition: .2s ease;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .tool-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 120;
+      display: none;
+      place-items: center;
+      padding: 18px;
+      background: rgba(0,0,0,.34);
+      backdrop-filter: blur(12px);
+    }
+    .tool-modal.show { display: grid; }
+    .tool-panel {
+      width: min(560px, 100%);
+      max-height: min(720px, calc(100vh - 36px));
+      overflow: auto;
+      padding: 22px;
+      border: 1px solid rgba(255,255,255,.72);
+      border-radius: 26px;
+      background: rgba(255,255,255,.96);
+      box-shadow: 0 28px 80px rgba(0,0,0,.22);
+    }
+    .tool-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .tool-head h3 { margin: 0; font-size: 20px; }
+    .tool-close {
+      width: 36px;
+      height: 36px;
+      border: 0;
+      border-radius: 50%;
+      color: var(--text);
+      background: #e8e8ed;
+      cursor: pointer;
+    }
+    .tool-note { margin: 12px 0; color: var(--muted); line-height: 1.65; }
+    .tool-text {
+      width: 100%;
+      min-height: 150px;
+      resize: vertical;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      color: var(--text);
+      background: #f5f5f7;
+      font: inherit;
+      line-height: 1.55;
+    }
+    .tool-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .tool-actions .btn { flex: 1 1 130px; }
+    body.modal-open { overflow: hidden; }
+
+    @media (max-width: 900px) {
+      .status-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .card, .card.span-6, .card.span-8 { grid-column: span 6; }
+      .card.span-12 { grid-column: 1 / -1; }
+    }
+    @media (max-width: 640px) {
+      .shell { width: calc(100vw - 18px); max-width: none; padding-top: 10px; }
+      .topbar { width: 100%; max-width: 100%; position: static; flex-direction: column; align-items: stretch; padding: 12px; }
+      .brand { width: 100%; }
+      .brand-title { font-size: 16px; }
+      .actions { width: 100%; max-width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+      #share-btn { grid-column: 1 / -1; }
+      .btn { min-width: 0; min-height: 42px; padding: 9px 10px; font-size: 14px; font-weight: 700; white-space: nowrap; }
+      .hero { border-radius: 26px; }
+      .hero h1 { max-width: 12ch; }
+      .status-grid { margin-top: 26px; }
+      .status { padding: 14px; }
+      .section-head { display: block; }
+      .grid { gap: 12px; }
+      .card, .card.span-6, .card.span-8, .card.span-12 { grid-column: 1 / -1; border-radius: 23px; }
+      .advice { grid-template-columns: 1fr; gap: 7px; }
+      .hide-mobile { display: none; }
+      table { font-size: 16px; }
+      th { font-size: 14px; }
+      td.col-sector, td.col-direction, td.col-group,
+      td.col-stock, td.col-etf, td.col-asset { font-size: 18px; }
+      .market-moves { gap: 7px; }
+      .move-chip { min-height: 42px; padding: 9px 11px; font-size: 16px; }
+      .move-name { font-size: 13px; }
+      .cell-tile { min-height: 62px; padding: 14px 15px; }
+    }
+    @media print {
+      body { background: #fff; }
+      .shell { width: 100%; padding: 0; }
+      .topbar, .actions { display: none; }
+      .hero, .card { break-inside: avoid; box-shadow: none; }
+      .section { margin-top: 28px; }
+      .table-wrap { overflow: visible; }
+      table { min-width: 0; font-size: 10px; }
+      th, td { padding: 6px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <nav class="topbar" aria-label="报告工具">
+      <div class="brand">
+        <p class="eyebrow">A股六步法 v4.8</p>
+        <p class="brand-title" id="nav-title">机构实战版股票分析报告</p>
+      </div>
+      <div class="actions">
+        <button class="btn" type="button" id="copy-btn">复制摘要</button>
+        <button class="btn" type="button" id="copy-link-btn">复制链接</button>
+        <button class="btn" type="button" id="print-btn">打印 / PDF</button>
+        <button class="btn primary" type="button" id="share-btn">分享链接</button>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow" id="hero-kicker">盘后研究报告</p>
+        <h1 id="report-title">A股市场与股票组合分析</h1>
+        <p id="report-summary">教学示例：请使用生成脚本注入真实、可核验的数据。</p>
+      </div>
+      <div class="status-grid">
+        <div class="status"><span>报告日期</span><strong id="report-date">—</strong></div>
+        <div class="status"><span>市场状态</span><strong id="market-state">—</strong></div>
+        <div class="status"><span>主线阶段</span><strong id="mainline-stage">—</strong></div>
+        <div class="status"><span>风险等级</span><strong id="risk-level">—</strong></div>
+      </div>
+    </header>
+
+    <section class="section" id="overview-section">
+      <div class="section-head">
+        <div><h2>市场总览</h2><p class="section-note">指数、成交、广度与证据覆盖的统一快照。</p></div>
+      </div>
+      <div class="grid" id="overview-grid"></div>
+    </section>
+
+    <section class="section" id="lifecycle-section">
+      <div class="section-head">
+        <div><h2>主线生命周期</h2><p class="section-note">同一时点只确认一个主阶段；证据不足时标记待判定。</p></div>
+      </div>
+      <div class="card span-12">
+        <div class="table-wrap"><div class="timeline" id="lifecycle-timeline"></div></div>
+      </div>
+      <div class="grid" style="margin-top:16px" id="lifecycle-cards"></div>
+    </section>
+
+    <section class="section" id="sector-lifecycle-section">
+      <div class="section-head">
+        <div><h2>各板块生命周期</h2><p class="section-note">覆盖指定板块；F为事实，I为推断，H为待验证假设。</p></div>
+      </div>
+      <div class="card span-12">
+        <div class="table-wrap"><table id="sector-lifecycle-table"></table></div>
+      </div>
+    </section>
+
+    <section class="section" id="key-section">
+      <div class="section-head">
+        <div><h2>可证伪 Key</h2><p class="section-note">每项均含支持、最大反证、确认、证伪与最晚验证时间。</p></div>
+      </div>
+      <div class="card span-12">
+        <div class="table-wrap"><table id="key-table"></table></div>
+      </div>
+    </section>
+
+    <section class="section" id="scenario-section">
+      <div class="section-head">
+        <div><h2>未来 1—3 日情景树</h2><p class="section-note">互斥情景概率合计100%；概率仅用于风险预算。</p></div>
+      </div>
+      <div class="card span-12">
+        <div class="table-wrap"><table id="scenario-table"></table></div>
+      </div>
+    </section>
+
+    <section class="section" id="etf-mapping-section">
+      <div class="section-head">
+        <div><h2>ETF 与相关个股映射</h2><p class="section-note">ETF和个股的重合风险合并计算；未取得正式份额变化时不推断机构申购。</p></div>
+      </div>
+      <div class="card span-12">
+        <div class="table-wrap"><table id="etf-mapping-table"></table></div>
+      </div>
+    </section>
+
+    <section class="section" id="score-section">
+      <div class="section-head">
+        <div><h2>股票100分评分</h2><p class="section-note">14维总分，硬否决、拥挤度与交易阶段优先于分数。</p></div>
+      </div>
+      <div class="card span-12">
+        <div class="table-wrap"><table id="score-table"></table></div>
+      </div>
+    </section>
+
+    <section class="section" id="ranking-section">
+      <div class="section-head">
+        <div><h2>核心股票排序</h2><p class="section-note">主板优先与非主板例外、ETF豁免分开标记。</p></div>
+      </div>
+      <div class="card span-12">
+        <div class="table-wrap"><table id="ranking-table"></table></div>
+      </div>
+    </section>
+
+    <section class="section" id="tier-section">
+      <div class="section-head">
+        <div><h2>梯队与剔除项</h2><p class="section-note">硬否决、生命周期和交易触发优先于100分评分。</p></div>
+      </div>
+      <div class="card span-12">
+        <div class="table-wrap"><table id="tier-table"></table></div>
+      </div>
+    </section>
+
+    <section class="section" id="institution-section">
+      <div class="section-head">
+        <div><h2>机构证据卡</h2><p class="section-note">行情软件资金不等于机构调仓；只使用E0—E3证据。</p></div>
+      </div>
+      <div class="card span-12">
+        <div class="table-wrap"><table id="institution-table"></table></div>
+      </div>
+    </section>
+
+    <section class="section" id="risk-section">
+      <div class="section-head">
+        <div><h2>风险因子矩阵</h2><p class="section-note">ETF与个股的重合暴露合并计算，名义分散不等于风险分散。</p></div>
+      </div>
+      <div class="card span-12">
+        <div class="table-wrap"><table id="risk-table"></table></div>
+      </div>
+    </section>
+
+    <section class="section" id="advice-section">
+      <div class="section-head">
+        <div><h2>操作建议</h2><p class="section-note">风险容量与交易触发分别呈现；所有动作均为条件句。</p></div>
+      </div>
+      <div class="card span-12"><div class="advice-list" id="advice-list"></div></div>
+    </section>
+
+    <section class="section" id="calibration-section">
+      <div class="section-head">
+        <div><h2>20日跟踪校准</h2><p class="section-note">样本不足时不评价模型长期有效性。</p></div>
+      </div>
+      <div class="card span-12">
+        <div class="table-wrap"><table id="calibration-table"></table></div>
+      </div>
+    </section>
+
+    <section class="section" id="universe-section">
+      <div class="section-head">
+        <div><h2>自动分组（全池）</h2><p class="section-note">6个指数、10只ETF和107只个股，共123项；按代码去重。</p></div>
+      </div>
+      <div class="card span-12">
+        <div class="table-wrap"><table id="universe-table"></table></div>
+      </div>
+    </section>
+
+    <section class="section" id="source-section">
+      <div class="section-head">
+        <div><h2>公开证据与来源</h2><p class="section-note">A级为交易所、巨潮或正式公告；B级为权威行情与媒体交叉验证。</p></div>
+      </div>
+      <div class="card span-12">
+        <div class="table-wrap"><table id="source-table"></table></div>
+      </div>
+    </section>
+
+    <footer class="footnote">
+      <strong>数据与风险声明</strong>
+      <p id="data-note">本模板展示教学示例数据。正式报告必须标注数据截止时间、来源、缺口和置信度。</p>
+      <p>仅为研究观察；不承诺收益；不自动下单。评分不等于上涨概率，不能替代持牌投资顾问的个性化建议。</p>
+    </footer>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="tool-modal" id="tool-modal" aria-hidden="true">
+    <section class="tool-panel" role="dialog" aria-modal="true" aria-labelledby="tool-title">
+      <div class="tool-head">
+        <h3 id="tool-title">报告工具</h3>
+        <button class="tool-close" type="button" id="tool-close" aria-label="关闭">×</button>
+      </div>
+      <p class="tool-note" id="tool-note"></p>
+      <textarea class="tool-text" id="tool-text" readonly aria-label="可复制内容"></textarea>
+      <div class="tool-actions">
+        <button class="btn" type="button" id="tool-copy">复制内容</button>
+        <button class="btn" type="button" id="tool-download">保存HTML</button>
+        <button class="btn primary" type="button" id="tool-print">调用系统打印</button>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const SAMPLE_DATA = {
+      meta: {
+        title: "A股市场与股票组合分析",
+        reportType: "教学示例",
+        date: "2026-07-28",
+        dataCutoff: "2026-07-28 15:00 +08:00",
+        marketState: "高位分歧",
+        mainlineStage: "首次分歧",
+        riskLevel: "中高",
+        confidence: "低（示例）",
+        summary: "示例数据仅用于展示网页布局；请使用生成脚本注入真实、可核验的盘面与公告数据。",
+        dataNote: "教学示例，不代表真实市场判断。"
+      },
+      overview: [
+        {label:"两市成交额", value:"示例", note:"较20日均值：待核验"},
+        {label:"上涨 / 下跌", value:"— / —", note:"市场广度"},
+        {label:"主线超额收益", value:"—", note:"相对基准"},
+        {label:"数据覆盖率", value:"0%", note:"正式报告需≥75%"},
+        {label:"拥挤度风险", value:"— / 10", note:"越高越拥挤"},
+        {label:"风险容量", value:"待判定", note:"不等于交易触发"}
+      ],
+      lifecycle: {
+        active: "首次分歧",
+        stages: ["启动","发酵","高潮","首次分歧","二波确认","退潮"],
+        cards: [
+          {title:"支持证据", text:"待填入可核验事实", tone:"green"},
+          {title:"最大反证", text:"待填入最强反向证据", tone:"red"},
+          {title:"升级条件", text:"待填入收盘确认条件", tone:"blue"},
+          {title:"降级条件", text:"待填入退潮证伪条件", tone:"orange"}
+        ]
+      },
+      scores: [],
+      rankings: [],
+      tiers: [],
+      institutions: [],
+      risks: [],
+      advice: [],
+      calibration: [],
+      sectorLifecycle: [],
+      etfMappings: [],
+      universe: [],
+      keys: [],
+      scenarios: [],
+      sources: []
+    };
+
+    let REPORT_DATA = SAMPLE_DATA;
+    REPORT_DATA = {"meta": {"title": "A股六步法 v4.8｜2026-07-29盘后全池报告", "reportType": "机构实战版 · 全池研究", "date": "2026-07-29", "dataCutoff": "2026-07-29 15:00 +08:00；公开行情接口抓取后生成", "marketState": "高位分歧", "mainlineStage": "科技链局部退潮 / 其余方向待判定", "riskLevel": "中高", "confidence": "中低（行情完整；基本面与机构字段缺）", "summary": "F事实：全池107只个股中上涨54只、下跌53只；指数整体修复，但服务器、半导体、PCB仍处负超额。I推断：市场是结构性分化，不把低位轮动直接定为新主线；对退潮组冻结新增风险。", "dataNote": "本报告读取此前截图对应的全池清单并按代码去重：6个指数、10只ETF、107只个股，共123项。收盘行情为B级公开接口数据；机构、ETF份额、业绩预告、估值与订单未完整核验，统一不得写成机构调仓或确定性盈利。仅为研究观察，不承诺收益，不自动下单。"}, "overview": [{"label": "主要指数", "value": "", "note": "F·B 收盘行情", "moves": [{"name": "上证", "value": "+0.40%"}, {"name": "深成", "value": "+1.10%"}, {"name": "创业板", "value": "+1.55%"}]}, {"label": "科创50", "value": "-0.87%", "note": "5日-9.75%"}, {"label": "沪深成交额", "value": "约2.30万亿元", "note": "按上证/深成指公开金额合计"}, {"label": "全池广度", "value": "54涨 / 53跌", "note": "107只个股样本"}, {"label": "近跌停样本", "value": "4只", "note": "跌幅≤-9.8%"}, {"label": "全池构成", "value": "6指数 + 10ETF + 107个股", "note": "按证券代码去重"}, {"label": "科技链状态", "value": "局部退潮", "note": "服务器/PCB组均值为负"}, {"label": "新增风险容量", "value": "退潮组不通过", "note": "未提供实际仓位"}], "lifecycle": {"active": "首次分歧", "stages": ["启动", "发酵", "高潮", "首次分歧", "二波确认", "退潮"], "cards": [{"title": "F｜市场支持", "text": "上证、深成指、创业板分别+0.40%、+1.10%、+1.55%，全池涨跌接近均衡。", "tone": "green"}, {"title": "F｜科技反证", "text": "AI算力组均值-2.50%，半导体-1.96%，PCB-2.78%。", "tone": "red"}, {"title": "H｜升级条件", "text": "任一候选板块连续两日正超额、核心股不补跌、广度扩张，并补充业绩/订单核验。", "tone": "blue"}, {"title": "H｜降级条件", "text": "科技核心继续放量补跌，或低位轮动仅单日拉升后失去相对强度。", "tone": "orange"}]}, "sectorLifecycle": [{"sector": "AI应用/传媒", "avgPct": "+0.01%", "medianPct": "+0.68%", "stage": "待判定", "support": "F：14只样本，组内均值+0.01%，中位+0.68%，上涨9只。", "counter": "中报、订单、机构与估值数据未完整核验；单日强弱不能证明产业趋势。", "upgrade": "连续2个收盘正超额、广度扩张、核心不补跌，并补充业绩/订单证据。", "downgrade": "核心同步破位、组内均值继续负超额，或出现A级业绩/订单反证。"}, {"sector": "AI算力/服务器/数据中心", "avgPct": "-2.50%", "medianPct": "-1.97%", "stage": "退潮", "support": "F：13只样本，组内均值-2.50%，中位-1.97%，上涨3只。", "counter": "中报、订单、机构与估值数据未完整核验；单日强弱不能证明产业趋势。", "upgrade": "连续2个收盘正超额、广度扩张、核心不补跌，并补充业绩/订单证据。", "downgrade": "核心同步破位、组内均值继续负超额，或出现A级业绩/订单反证。"}, {"sector": "人形机器人", "avgPct": "+0.63%", "medianPct": "+1.24%", "stage": "启动", "support": "F：5只样本，组内均值+0.63%，中位+1.24%，上涨4只。", "counter": "中报、订单、机构与估值数据未完整核验；单日强弱不能证明产业趋势。", "upgrade": "连续2个收盘正超额、广度扩张、核心不补跌，并补充业绩/订单证据。", "downgrade": "核心同步破位、组内均值继续负超额，或出现A级业绩/订单反证。"}, {"sector": "元件/MLCC", "avgPct": "+7.96%", "medianPct": "+7.96%", "stage": "启动", "support": "F：2只样本，组内均值+7.96%，中位+7.96%，上涨2只。", "counter": "中报、订单、机构与估值数据未完整核验；单日强弱不能证明产业趋势。", "upgrade": "连续2个收盘正超额、广度扩张、核心不补跌，并补充业绩/订单证据。", "downgrade": "核心同步破位、组内均值继续负超额，或出现A级业绩/订单反证。"}, {"sector": "元件/PCB/MLCC", "avgPct": "-2.78%", "medianPct": "-3.16%", "stage": "退潮", "support": "F：9只样本，组内均值-2.78%，中位-3.16%，上涨0只。", "counter": "中报、订单、机构与估值数据未完整核验；单日强弱不能证明产业趋势。", "upgrade": "连续2个收盘正超额、广度扩张、核心不补跌，并补充业绩/订单证据。", "downgrade": "核心同步破位、组内均值继续负超额，或出现A级业绩/订单反证。"}, {"sector": "光模块/高速连接", "avgPct": "-0.82%", "medianPct": "-1.37%", "stage": "首次分歧", "support": "F：10只样本，组内均值-0.82%，中位-1.37%，上涨4只。", "counter": "中报、订单、机构与估值数据未完整核验；单日强弱不能证明产业趋势。", "upgrade": "连续2个收盘正超额、广度扩张、核心不补跌，并补充业绩/订单证据。", "downgrade": "核心同步破位、组内均值继续负超额，或出现A级业绩/订单反证。"}, {"sector": "半导体设备/芯片/封测", "avgPct": "-1.96%", "medianPct": "-2.40%", "stage": "首次分歧", "support": "F：21只样本，组内均值-1.96%，中位-2.40%，上涨7只。", "counter": "中报、订单、机构与估值数据未完整核验；单日强弱不能证明产业趋势。", "upgrade": "连续2个收盘正超额、广度扩张、核心不补跌，并补充业绩/订单证据。", "downgrade": "核心同步破位、组内均值继续负超额，或出现A级业绩/订单反证。"}, {"sector": "商业航天/卫星", "avgPct": "+0.36%", "medianPct": "+0.40%", "stage": "待判定", "support": "F：4只样本，组内均值+0.36%，中位+0.40%，上涨3只。", "counter": "中报、订单、机构与估值数据未完整核验；单日强弱不能证明产业趋势。", "upgrade": "连续2个收盘正超额、广度扩张、核心不补跌，并补充业绩/订单证据。", "downgrade": "核心同步破位、组内均值继续负超额，或出现A级业绩/订单反证。"}, {"sector": "新能源", "avgPct": "+1.82%", "medianPct": "+3.24%", "stage": "启动", "support": "F：8只样本，组内均值+1.82%，中位+3.24%，上涨7只。", "counter": "中报、订单、机构与估值数据未完整核验；单日强弱不能证明产业趋势。", "upgrade": "连续2个收盘正超额、广度扩张、核心不补跌，并补充业绩/订单证据。", "downgrade": "核心同步破位、组内均值继续负超额，或出现A级业绩/订单反证。"}, {"sector": "电力设备/风电", "avgPct": "-1.49%", "medianPct": "-0.47%", "stage": "待判定", "support": "F：4只样本，组内均值-1.49%，中位-0.47%，上涨2只。", "counter": "中报、订单、机构与估值数据未完整核验；单日强弱不能证明产业趋势。", "upgrade": "连续2个收盘正超额、广度扩张、核心不补跌，并补充业绩/订单证据。", "downgrade": "核心同步破位、组内均值继续负超额，或出现A级业绩/订单反证。"}, {"sector": "资源/黄金", "avgPct": "+0.72%", "medianPct": "+1.46%", "stage": "启动", "support": "F：14只样本，组内均值+0.72%，中位+1.46%，上涨10只。", "counter": "中报、订单、机构与估值数据未完整核验；单日强弱不能证明产业趋势。", "upgrade": "连续2个收盘正超额、广度扩张、核心不补跌，并补充业绩/订单证据。", "downgrade": "核心同步破位、组内均值继续负超额，或出现A级业绩/订单反证。"}, {"sector": "金融科技", "avgPct": "+3.24%", "medianPct": "+2.58%", "stage": "启动", "support": "F：3只样本，组内均值+3.24%，中位+2.58%，上涨3只。", "counter": "中报、订单、机构与估值数据未完整核验；单日强弱不能证明产业趋势。", "upgrade": "连续2个收盘正超额、广度扩张、核心不补跌，并补充业绩/订单证据。", "downgrade": "核心同步破位、组内均值继续负超额，或出现A级业绩/订单反证。"}], "keys": [{"key": "K1", "hypothesis": "AI算力/服务器仍在退潮边缘，而非二波确认。", "support": "F：组内均值-2.50%，5日均值-10.66%。", "counter": "F：指数整体上涨，组内仍有3只上涨；产业订单与中报尚未复核。", "confirm": "未来1—3日组内继续负超额且核心补跌。", "falsify": "组内连续两日正超额、核心止跌且广度扩张。", "deadline": "2026-08-01收盘", "confidence": "中低"}, {"key": "K2", "hypothesis": "半导体与PCB处于风险释放，不能把单股反抽视作板块启动。", "support": "F：半导体均值-1.96%，PCB均值-2.78%。", "counter": "F：科创芯片ETF仅-0.68%，设备/封测内部仍分化。", "confirm": "ETF与核心股持续负超额。", "falsify": "ETF止跌、核心股重新跑赢并出现2日广度扩张。", "deadline": "2026-08-01收盘", "confidence": "中低"}, {"key": "K3", "hypothesis": "金融科技、新能源、MLCC存在低位轮动线索，但还不是发酵主线。", "support": "F：金融科技、新能源、MLCC组均值为正且上涨占比较高。", "counter": "数据仅覆盖自选池，缺少全市场广度、ETF份额和订单验证。", "confirm": "连续2日正超额且ETF/核心同步扩散。", "falsify": "下一日转负、仅单一股票拉动或核心补跌。", "deadline": "2026-08-01收盘", "confidence": "低"}, {"key": "K4", "hypothesis": "评分高只代表横向排序，不构成新增仓信号。", "support": "F：最新业绩预告、机构席位、估值与持仓成本缺失。", "counter": "公开收盘价与流动性字段完整。", "confirm": "补齐A/B级业绩与机构信息并通过板块/个股触发。", "falsify": "不适用；数据缺口持续即保持冻结。", "deadline": "下一次完整公告核验", "confidence": "高"}], "scenarios": [{"scenario": "高位分歧延续", "weight": "45%", "boundary": "指数修复但科技内部继续分化", "impact": "强弱分层加剧，退潮组不具备加仓条件", "action": "冻结同质新增，观察相对强度"}, {"scenario": "科技退潮扩大", "weight": "30%", "boundary": "芯片/服务器核心再度补跌，ETF走弱", "impact": "高Beta科技继续负超额", "action": "按既定结构/波动/时间退出复核"}, {"scenario": "低位轮动确认", "weight": "15%", "boundary": "金融科技、新能源或机器人连续扩散", "impact": "出现探针观察方向", "action": "只用小仓观察，仍先验证成交与广度"}, {"scenario": "科技止跌修复", "weight": "10%", "boundary": "ETF止跌、核心正超额、广度改善", "impact": "退潮组可降级为高位分歧", "action": "先观察收盘确认，再评估风险容量"}], "etfMappings": [{"etf": "半导体设备ETF国泰（159516）", "pct": "-1.94%", "turnover": "17.46%", "stage": "首次分歧", "track": "半导体材料设备", "mapped": "北方华创、中微公司、拓荆科技、正帆科技", "overlap": "与设备个股高度重合", "action": "等待止跌；不新增", "gap": "份额、前十大权重、折溢价与跟踪误差未完整核验"}, {"etf": "芯片ETF华夏（159995）", "pct": "-2.04%", "turnover": "5.23%", "stage": "首次分歧", "track": "国证芯片主题", "mapped": "兆易创新、澜起科技、寒武纪等芯片链", "overlap": "与科创芯片ETF和芯片个股重合", "action": "等待止跌；不新增", "gap": "份额、前十大权重、折溢价与跟踪误差未完整核验"}, {"etf": "科创芯片ETF嘉实（588200）", "pct": "-0.68%", "turnover": "10.64%", "stage": "首次分歧", "track": "科创板芯片", "mapped": "科创板芯片设计、制造、设备", "overlap": "科创高波动暴露", "action": "等待止跌；不新增", "gap": "份额、前十大权重、折溢价与跟踪误差未完整核验"}, {"etf": "科创创业人工智能ETF富国（159022）", "pct": "+0.30%", "turnover": "15.11%", "stage": "待判定", "track": "科创创业人工智能", "mapped": "AI芯片、算力、软件与应用", "overlap": "双创高贝塔，主题重合度高", "action": "普通观察/回避新增", "gap": "份额、前十大权重、折溢价与跟踪误差未完整核验"}, {"etf": "传媒ETF广发（512980）", "pct": "+3.11%", "turnover": "5.90%", "stage": "待判定", "track": "中证传媒", "mapped": "游戏、影视、营销与平台传媒", "overlap": "AI应用不等于ARR已兑现", "action": "普通观察/回避新增", "gap": "份额、前十大权重、折溢价与跟踪误差未完整核验"}, {"etf": "机器人ETF华夏（562500）", "pct": "+0.33%", "turnover": "4.17%", "stage": "启动", "track": "机器人主题", "mapped": "三花智控、绿的谐波、埃斯顿等映射", "overlap": "与机器人个股合并计算", "action": "观察；等待收盘触发", "gap": "份额、前十大权重、折溢价与跟踪误差未完整核验"}, {"etf": "卫星ETF永赢（159206）", "pct": "+0.80%", "turnover": "3.75%", "stage": "待判定", "track": "商用卫星通信", "mapped": "中国卫通、中国卫星、航天产业链", "overlap": "政策主题与小盘波动", "action": "普通观察/回避新增", "gap": "份额、前十大权重、折溢价与跟踪误差未完整核验"}, {"etf": "恒生科技ETF华夏（513180）", "pct": "+3.19%", "turnover": "9.28%", "stage": "待判定", "track": "恒生科技指数", "mapped": "港股互联网与科技平台", "overlap": "跨市场、汇率和QDII折溢价", "action": "普通观察/回避新增", "gap": "份额、前十大权重、折溢价与跟踪误差未完整核验"}, {"etf": "黄金ETF华安（518880）", "pct": "-0.10%", "turnover": "2.51%", "stage": "启动", "track": "黄金现货", "mapped": "黄金资产；与黄金股不等价", "overlap": "商品价格与公司经营风险不同", "action": "观察；等待收盘触发", "gap": "份额、前十大权重、折溢价与跟踪误差未完整核验"}, {"etf": "金融科技ETF华宝（159851）", "pct": "+2.74%", "turnover": "4.16%", "stage": "启动", "track": "金融科技主题", "mapped": "恒生电子、东方财富、同花顺等映射", "overlap": "成交与监管政策敏感", "action": "观察；等待收盘触发", "gap": "份额、前十大权重、折溢价与跟踪误差未完整核验"}], "scores": [{"stock": "中际旭创（300308）", "market": "科创/创业", "score": 59.7, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "AI CapEx→高速光互联", "institution": "E0 未核验", "action": "等待止跌；不新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "新易盛（300502）", "market": "科创/创业", "score": 56.5, "crowding": 6, "midyear": "未取得最新预告；中性分", "capexArr": "AI CapEx→高速光互联", "institution": "E0 未核验", "action": "等待止跌；不新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "北方华创（002371）", "market": "沪深主板", "score": 56.5, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "国产替代/扩产→设备、芯片与封测", "institution": "E0 未核验", "action": "等待止跌；不新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "XD澜起科（688008）", "market": "科创/创业", "score": 56.0, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "国产替代/扩产→设备、芯片与封测", "institution": "E0 未核验", "action": "等待止跌；不新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "拓荆科技（688072）", "market": "科创/创业", "score": 55.5, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "国产替代/扩产→设备、芯片与封测", "institution": "E0 未核验", "action": "等待止跌；不新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "中际联合（605305）", "market": "沪深主板", "score": 55.3, "crowding": 4, "midyear": "未取得最新预告；中性分", "capexArr": "装机与出口→设备订单", "institution": "E0 未核验", "action": "普通观察/回避新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "华工科技（000988）", "market": "沪深主板", "score": 55.1, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "AI CapEx→高速光互联", "institution": "E0 未核验", "action": "等待止跌；不新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "上海新阳（300236）", "market": "科创/创业", "score": 54.6, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "国产替代/扩产→设备、芯片与封测", "institution": "E0 未核验", "action": "等待止跌；不新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "宁德时代（300750）", "market": "科创/创业", "score": 54.6, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "新能源需求→材料、设备与整车", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "光迅科技（002281）", "market": "沪深主板", "score": 54.4, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "AI CapEx→高速光互联", "institution": "E0 未核验", "action": "等待止跌；不新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "瑞芯微（603893）", "market": "沪深主板", "score": 54.3, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "国产替代/扩产→设备、芯片与封测", "institution": "E0 未核验", "action": "等待止跌；不新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "C长鑫（688825）", "market": "科创/创业", "score": 54.2, "crowding": 8, "midyear": "未取得最新预告；中性分", "capexArr": "国产替代/扩产→设备、芯片与封测", "institution": "E0 未核验", "action": "等待止跌；不新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "金山办公（688111）", "market": "科创/创业", "score": 54.2, "crowding": 4, "midyear": "未取得最新预告；中性分", "capexArr": "模型能力→软件商业化/ARR待验证", "institution": "E0 未核验", "action": "普通观察/回避新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "中航光电（002179）", "market": "沪深主板", "score": 54.1, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "AI CapEx→高速光互联", "institution": "E0 未核验", "action": "等待止跌；不新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "天孚通信（300394）", "market": "科创/创业", "score": 53.9, "crowding": 6, "midyear": "未取得最新预告；中性分", "capexArr": "AI CapEx→高速光互联", "institution": "E0 未核验", "action": "等待止跌；不新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "恒生科技ETF华夏（513180）", "market": "ETF", "score": 53.8, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "港股科技指数暴露", "institution": "E0 未核验", "action": "普通观察/回避新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "传媒ETF广发（512980）", "market": "ETF", "score": 53.7, "crowding": 4, "midyear": "未取得最新预告；中性分", "capexArr": "模型能力→软件商业化/ARR待验证", "institution": "E0 未核验", "action": "普通观察/回避新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "三花智控（002050）", "market": "沪深主板", "score": 53.5, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "产业化→订单→收入待验证", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "国瓷材料（300285）", "market": "科创/创业", "score": 53.4, "crowding": 7, "midyear": "未取得最新预告；中性分", "capexArr": "国产替代/扩产→设备、芯片与封测", "institution": "E0 未核验", "action": "等待止跌；不新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "中国卫通（601698）", "market": "沪深主板", "score": 53.4, "crowding": 4, "midyear": "未取得最新预告；中性分", "capexArr": "政策/订单→卫星与军工收入待验证", "institution": "E0 未核验", "action": "普通观察/回避新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "用友网络（600588）", "market": "沪深主板", "score": 53.0, "crowding": 4, "midyear": "未取得最新预告；中性分", "capexArr": "模型能力→软件商业化/ARR待验证", "institution": "E0 未核验", "action": "普通观察/回避新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "比亚迪（002594）", "market": "沪深主板", "score": 53.0, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "新能源需求→材料、设备与整车", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "东方电气（600875）", "market": "沪深主板", "score": 52.9, "crowding": 4, "midyear": "未取得最新预告；中性分", "capexArr": "装机与出口→设备订单", "institution": "E0 未核验", "action": "普通观察/回避新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "中国卫星（600118）", "market": "沪深主板", "score": 52.8, "crowding": 4, "midyear": "未取得最新预告；中性分", "capexArr": "政策/订单→卫星与军工收入待验证", "institution": "E0 未核验", "action": "普通观察/回避新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "紫金矿业（601899）", "market": "沪深主板", "score": 52.8, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "商品价格→资源公司利润", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "神州数码（000034）", "market": "沪深主板", "score": 52.6, "crowding": 4, "midyear": "未取得最新预告；中性分", "capexArr": "AI CapEx→服务器/网络/IDC订单", "institution": "E0 未核验", "action": "冻结新增；持仓复核", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "正帆科技（688596）", "market": "科创/创业", "score": 52.6, "crowding": 9, "midyear": "未取得最新预告；中性分", "capexArr": "国产替代/扩产→设备、芯片与封测", "institution": "E0 未核验", "action": "冻结新增；持仓复核", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "恒为科技（603496）", "market": "沪深主板", "score": 52.4, "crowding": 4, "midyear": "未取得最新预告；中性分", "capexArr": "AI CapEx→服务器/网络/IDC订单", "institution": "E0 未核验", "action": "冻结新增；持仓复核", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "寒武纪（688256）", "market": "科创/创业", "score": 52.4, "crowding": 6, "midyear": "未取得最新预告；中性分", "capexArr": "国产替代/扩产→设备、芯片与封测", "institution": "E0 未核验", "action": "等待止跌；不新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "国轩高科（002074）", "market": "沪深主板", "score": 52.3, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "新能源需求→材料、设备与整车", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "容百科技（688005）", "market": "科创/创业", "score": 52.2, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "新能源需求→材料、设备与整车", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "高德红外（002414）", "market": "沪深主板", "score": 52.1, "crowding": 4, "midyear": "未取得最新预告；中性分", "capexArr": "政策/订单→卫星与军工收入待验证", "institution": "E0 未核验", "action": "普通观察/回避新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "山东黄金（600547）", "market": "沪深主板", "score": 52.1, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "商品价格→资源公司利润", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "厦钨新能（688778）", "market": "科创/创业", "score": 52.0, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "新能源需求→材料、设备与整车", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "卫星ETF永赢（159206）", "market": "ETF", "score": 51.9, "crowding": 4, "midyear": "未取得最新预告；中性分", "capexArr": "政策/订单→卫星与军工收入待验证", "institution": "E0 未核验", "action": "普通观察/回避新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "数据港（603881）", "market": "沪深主板", "score": 51.9, "crowding": 4, "midyear": "未取得最新预告；中性分", "capexArr": "AI CapEx→服务器/网络/IDC订单", "institution": "E0 未核验", "action": "冻结新增；持仓复核", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "京东方Ａ（000725）", "market": "沪深主板", "score": 51.8, "crowding": 4, "midyear": "未取得最新预告；中性分", "capexArr": "模型能力→软件商业化/ARR待验证", "institution": "E0 未核验", "action": "普通观察/回避新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "国脉科技（002093）", "market": "沪深主板", "score": 51.8, "crowding": 4, "midyear": "未取得最新预告；中性分", "capexArr": "模型能力→软件商业化/ARR待验证", "institution": "E0 未核验", "action": "普通观察/回避新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "拓维信息（002261）", "market": "沪深主板", "score": 51.6, "crowding": 4, "midyear": "未取得最新预告；中性分", "capexArr": "AI CapEx→服务器/网络/IDC订单", "institution": "E0 未核验", "action": "冻结新增；持仓复核", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "鼎龙股份（300054）", "market": "科创/创业", "score": 51.6, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "国产替代/扩产→设备、芯片与封测", "institution": "E0 未核验", "action": "等待止跌；不新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "黄金ETF华安（518880）", "market": "ETF", "score": 51.5, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "商品价格→资源公司利润", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "深信服（300454）", "market": "科创/创业", "score": 51.5, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "模型能力→软件商业化/ARR待验证", "institution": "E0 未核验", "action": "普通观察/回避新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "新雷能（300593）", "market": "科创/创业", "score": 51.5, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "新能源需求→材料、设备与整车", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "机器人ETF华夏（562500）", "market": "ETF", "score": 51.3, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "产业化→订单→收入待验证", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "芒果超媒（300413）", "market": "科创/创业", "score": 51.3, "crowding": 4, "midyear": "未取得最新预告；中性分", "capexArr": "模型能力→软件商业化/ARR待验证", "institution": "E0 未核验", "action": "普通观察/回避新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "盛达资源（000603）", "market": "沪深主板", "score": 51.3, "crowding": 6, "midyear": "未取得最新预告；中性分", "capexArr": "商品价格→资源公司利润", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "金融科技ETF华宝（159851）", "market": "ETF", "score": 51.2, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "市场成交/政策→软件服务收入", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "浪潮软件（600756）", "market": "沪深主板", "score": 51.1, "crowding": 7, "midyear": "未取得最新预告；中性分", "capexArr": "AI CapEx→服务器/网络/IDC订单", "institution": "E0 未核验", "action": "冻结新增；持仓复核", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "中科创达（300496）", "market": "科创/创业", "score": 51.1, "crowding": 4, "midyear": "未取得最新预告；中性分", "capexArr": "模型能力→软件商业化/ARR待验证", "institution": "E0 未核验", "action": "普通观察/回避新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "视觉中国（000681）", "market": "沪深主板", "score": 51.1, "crowding": 4, "midyear": "未取得最新预告；中性分", "capexArr": "模型能力→软件商业化/ARR待验证", "institution": "E0 未核验", "action": "普通观察/回避新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "双环传动（002472）", "market": "沪深主板", "score": 51.1, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "产业化→订单→收入待验证", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "中贝通信（603220）", "market": "沪深主板", "score": 51.0, "crowding": 4, "midyear": "未取得最新预告；中性分", "capexArr": "AI CapEx→服务器/网络/IDC订单", "institution": "E0 未核验", "action": "冻结新增；持仓复核", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "中微公司（688012）", "market": "科创/创业", "score": 51.0, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "国产替代/扩产→设备、芯片与封测", "institution": "E0 未核验", "action": "等待止跌；不新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "西部矿业（601168）", "market": "沪深主板", "score": 51.0, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "商品价格→资源公司利润", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "风华高科（000636）", "market": "沪深主板", "score": 50.9, "crowding": 8, "midyear": "未取得最新预告；中性分", "capexArr": "电子需求/价格周期", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "先导智能（300450）", "market": "科创/创业", "score": 50.9, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "产业化→订单→收入待验证", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "航天发展（000547）", "market": "沪深主板", "score": 50.8, "crowding": 4, "midyear": "未取得最新预告；中性分", "capexArr": "政策/订单→卫星与军工收入待验证", "institution": "E0 未核验", "action": "普通观察/回避新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "同花顺（300033）", "market": "科创/创业", "score": 50.8, "crowding": 6, "midyear": "未取得最新预告；中性分", "capexArr": "市场成交/政策→软件服务收入", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "恒生电子（600570）", "market": "沪深主板", "score": 50.8, "crowding": 6, "midyear": "未取得最新预告；中性分", "capexArr": "市场成交/政策→软件服务收入", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "埃斯顿（002747）", "market": "沪深主板", "score": 50.7, "crowding": 6, "midyear": "未取得最新预告；中性分", "capexArr": "产业化→订单→收入待验证", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "腾远钴业（301219）", "market": "科创/创业", "score": 50.7, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "商品价格→资源公司利润", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "盛科通信-U（688702）", "market": "科创/创业", "score": 50.6, "crowding": 6, "midyear": "未取得最新预告；中性分", "capexArr": "AI CapEx→高速光互联", "institution": "E0 未核验", "action": "等待止跌；不新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "沪电股份（002463）", "market": "沪深主板", "score": 50.6, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "服务器升级→PCB、材料与元件", "institution": "E0 未核验", "action": "冻结新增；持仓复核", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "软通动力（301236）", "market": "科创/创业", "score": 50.5, "crowding": 4, "midyear": "未取得最新预告；中性分", "capexArr": "模型能力→软件商业化/ARR待验证", "institution": "E0 未核验", "action": "普通观察/回避新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "东方财富（300059）", "market": "科创/创业", "score": 50.4, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "市场成交/政策→软件服务收入", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "科创芯片ETF嘉实（588200）", "market": "ETF", "score": 50.3, "crowding": 6, "midyear": "未取得最新预告；中性分", "capexArr": "国产替代/扩产→设备、芯片与封测", "institution": "E0 未核验", "action": "等待止跌；不新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "昆仑万维（300418）", "market": "科创/创业", "score": 50.2, "crowding": 4, "midyear": "未取得最新预告；中性分", "capexArr": "模型能力→软件商业化/ARR待验证", "institution": "E0 未核验", "action": "普通观察/回避新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "华友钴业（603799）", "market": "沪深主板", "score": 50.2, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "商品价格→资源公司利润", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "华丰科技（688629）", "market": "科创/创业", "score": 50.1, "crowding": 6, "midyear": "未取得最新预告；中性分", "capexArr": "AI CapEx→高速光互联", "institution": "E0 未核验", "action": "等待止跌；不新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "意华股份（002897）", "market": "沪深主板", "score": 50.0, "crowding": 6, "midyear": "未取得最新预告；中性分", "capexArr": "AI CapEx→高速光互联", "institution": "E0 未核验", "action": "等待止跌；不新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "格林美（002340）", "market": "沪深主板", "score": 49.9, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "商品价格→资源公司利润", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "崇达技术（002815）", "market": "沪深主板", "score": 49.8, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "服务器升级→PCB、材料与元件", "institution": "E0 未核验", "action": "冻结新增；持仓复核", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "当升科技（300073）", "market": "科创/创业", "score": 49.8, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "新能源需求→材料、设备与整车", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "弘信电子（300657）", "market": "科创/创业", "score": 49.7, "crowding": 4, "midyear": "未取得最新预告；中性分", "capexArr": "模型能力→软件商业化/ARR待验证", "institution": "E0 未核验", "action": "普通观察/回避新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "证通电子（002197）", "market": "沪深主板", "score": 49.7, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "模型能力→软件商业化/ARR待验证", "institution": "E0 未核验", "action": "普通观察/回避新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "德明利（001309）", "market": "沪深主板", "score": 49.6, "crowding": 7, "midyear": "未取得最新预告；中性分", "capexArr": "国产替代/扩产→设备、芯片与封测", "institution": "E0 未核验", "action": "等待止跌；不新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "中科曙光（603019）", "market": "沪深主板", "score": 49.5, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "AI CapEx→服务器/网络/IDC订单", "institution": "E0 未核验", "action": "冻结新增；持仓复核", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "博迁新材（605376）", "market": "沪深主板", "score": 49.5, "crowding": 7, "midyear": "未取得最新预告；中性分", "capexArr": "电子需求/价格周期", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "金发科技（600143）", "market": "沪深主板", "score": 49.5, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "商品价格→资源公司利润", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "科创创业人工智能ETF富国（159022）", "market": "ETF", "score": 49.4, "crowding": 6, "midyear": "未取得最新预告；中性分", "capexArr": "模型能力→软件商业化/ARR待验证", "institution": "E0 未核验", "action": "普通观察/回避新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "九丰能源（605090）", "market": "沪深主板", "score": 49.4, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "商品价格→资源公司利润", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "云赛智联（600602）", "market": "沪深主板", "score": 49.1, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "AI CapEx→服务器/网络/IDC订单", "institution": "E0 未核验", "action": "冻结新增；持仓复核", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "深南电路（002916）", "market": "沪深主板", "score": 49.1, "crowding": 6, "midyear": "未取得最新预告；中性分", "capexArr": "服务器升级→PCB、材料与元件", "institution": "E0 未核验", "action": "冻结新增；持仓复核", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "半导体设备ETF国泰（159516）", "market": "ETF", "score": 48.9, "crowding": 7, "midyear": "未取得最新预告；中性分", "capexArr": "国产替代/扩产→设备、芯片与封测", "institution": "E0 未核验", "action": "等待止跌；不新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "网宿科技（300017）", "market": "科创/创业", "score": 48.9, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "AI CapEx→服务器/网络/IDC订单", "institution": "E0 未核验", "action": "冻结新增；持仓复核", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "华银电力（600744）", "market": "沪深主板", "score": 48.9, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "装机与出口→设备订单", "institution": "E0 未核验", "action": "普通观察/回避新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "海光信息（688041）", "market": "科创/创业", "score": 48.8, "crowding": 6, "midyear": "未取得最新预告；中性分", "capexArr": "国产替代/扩产→设备、芯片与封测", "institution": "E0 未核验", "action": "等待止跌；不新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "大族数控（301200）", "market": "科创/创业", "score": 48.8, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "服务器升级→PCB、材料与元件", "institution": "E0 未核验", "action": "冻结新增；持仓复核", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "中曼石油（603619）", "market": "沪深主板", "score": 48.8, "crowding": 6, "midyear": "未取得最新预告；中性分", "capexArr": "商品价格→资源公司利润", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "芯片ETF华夏（159995）", "market": "ETF", "score": 48.6, "crowding": 6, "midyear": "未取得最新预告；中性分", "capexArr": "国产替代/扩产→设备、芯片与封测", "institution": "E0 未核验", "action": "等待止跌；不新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "太极实业（600667）", "market": "沪深主板", "score": 48.4, "crowding": 7, "midyear": "未取得最新预告；中性分", "capexArr": "国产替代/扩产→设备、芯片与封测", "institution": "E0 未核验", "action": "等待止跌；不新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "天赐材料（002709）", "market": "沪深主板", "score": 48.4, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "商品价格→资源公司利润", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "东方钽业（000962）", "market": "沪深主板", "score": 48.3, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "商品价格→资源公司利润", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "浪潮信息（000977）", "market": "沪深主板", "score": 48.2, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "AI CapEx→服务器/网络/IDC订单", "institution": "E0 未核验", "action": "冻结新增；持仓复核", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "润建股份（002929）", "market": "沪深主板", "score": 47.9, "crowding": 4, "midyear": "未取得最新预告；中性分", "capexArr": "模型能力→软件商业化/ARR待验证", "institution": "E0 未核验", "action": "普通观察/回避新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "绿的谐波（688017）", "market": "科创/创业", "score": 47.9, "crowding": 5, "midyear": "未取得最新预告；中性分", "capexArr": "产业化→订单→收入待验证", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "申菱环境（301018）", "market": "科创/创业", "score": 47.7, "crowding": 6, "midyear": "未取得最新预告；中性分", "capexArr": "AI CapEx→服务器/网络/IDC订单", "institution": "E0 未核验", "action": "冻结新增；持仓复核", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "至纯科技（603690）", "market": "沪深主板", "score": 46.9, "crowding": 9, "midyear": "未取得最新预告；中性分", "capexArr": "国产替代/扩产→设备、芯片与封测", "institution": "E0 未核验", "action": "冻结新增；持仓复核", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "长电科技（600584）", "market": "沪深主板", "score": 46.5, "crowding": 7, "midyear": "未取得最新预告；中性分", "capexArr": "国产替代/扩产→设备、芯片与封测", "institution": "E0 未核验", "action": "等待止跌；不新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "广合科技（001389）", "market": "沪深主板", "score": 46.4, "crowding": 6, "midyear": "未取得最新预告；中性分", "capexArr": "服务器升级→PCB、材料与元件", "institution": "E0 未核验", "action": "冻结新增；持仓复核", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "生益科技（600183）", "market": "沪深主板", "score": 46.3, "crowding": 6, "midyear": "未取得最新预告；中性分", "capexArr": "服务器升级→PCB、材料与元件", "institution": "E0 未核验", "action": "冻结新增；持仓复核", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "胜宏科技（300476）", "market": "科创/创业", "score": 46.1, "crowding": 6, "midyear": "未取得最新预告；中性分", "capexArr": "服务器升级→PCB、材料与元件", "institution": "E0 未核验", "action": "冻结新增；持仓复核", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "中富电路（300814）", "market": "科创/创业", "score": 45.9, "crowding": 6, "midyear": "未取得最新预告；中性分", "capexArr": "服务器升级→PCB、材料与元件", "institution": "E0 未核验", "action": "冻结新增；持仓复核", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "兆易创新（603986）", "market": "沪深主板", "score": 45.7, "crowding": 8, "midyear": "未取得最新预告；中性分", "capexArr": "国产替代/扩产→设备、芯片与封测", "institution": "E0 未核验", "action": "等待止跌；不新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "三祥新材（603663）", "market": "沪深主板", "score": 45.6, "crowding": 6, "midyear": "未取得最新预告；中性分", "capexArr": "商品价格→资源公司利润", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "有研新材（600206）", "market": "沪深主板", "score": 45.3, "crowding": 6, "midyear": "未取得最新预告；中性分", "capexArr": "国产替代/扩产→设备、芯片与封测", "institution": "E0 未核验", "action": "等待止跌；不新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "东山精密（002384）", "market": "沪深主板", "score": 45.3, "crowding": 7, "midyear": "未取得最新预告；中性分", "capexArr": "服务器升级→PCB、材料与元件", "institution": "E0 未核验", "action": "冻结新增；持仓复核", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "雅克科技（002409）", "market": "沪深主板", "score": 44.6, "crowding": 7, "midyear": "未取得最新预告；中性分", "capexArr": "国产替代/扩产→设备、芯片与封测", "institution": "E0 未核验", "action": "等待止跌；不新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "利通电子（603629）", "market": "沪深主板", "score": 44.5, "crowding": 6, "midyear": "未取得最新预告；中性分", "capexArr": "AI CapEx→服务器/网络/IDC订单", "institution": "E0 未核验", "action": "冻结新增；持仓复核", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "紫光股份（000938）", "market": "沪深主板", "score": 43.6, "crowding": 7, "midyear": "未取得最新预告；中性分", "capexArr": "AI CapEx→服务器/网络/IDC订单", "institution": "E0 未核验", "action": "冻结新增；持仓复核", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "菲菱科思（301191）", "market": "科创/创业", "score": 43.6, "crowding": 7, "midyear": "未取得最新预告；中性分", "capexArr": "AI CapEx→高速光互联", "institution": "E0 未核验", "action": "等待止跌；不新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "通富微电（002156）", "market": "沪深主板", "score": 42.9, "crowding": 8, "midyear": "未取得最新预告；中性分", "capexArr": "国产替代/扩产→设备、芯片与封测", "institution": "E0 未核验", "action": "冻结新增；持仓复核", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "多氟多（002407）", "market": "沪深主板", "score": 42.0, "crowding": 7, "midyear": "未取得最新预告；中性分", "capexArr": "商品价格→资源公司利润", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "宏景科技（301396）", "market": "科创/创业", "score": 41.4, "crowding": 6, "midyear": "未取得最新预告；中性分", "capexArr": "模型能力→软件商业化/ARR待验证", "institution": "E0 未核验", "action": "普通观察/回避新增", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "有研硅（688432）", "market": "科创/创业", "score": 41.1, "crowding": 7, "midyear": "未取得最新预告；中性分", "capexArr": "国产替代/扩产→设备、芯片与封测", "institution": "E0 未核验", "action": "冻结新增；持仓复核", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "立新能源（001258）", "market": "沪深主板", "score": 40.5, "crowding": 7, "midyear": "未取得最新预告；中性分", "capexArr": "装机与出口→设备订单", "institution": "E0 未核验", "action": "冻结新增；持仓复核", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}, {"stock": "麦格米特（002851）", "market": "沪深主板", "score": 39.4, "crowding": 8, "midyear": "未取得最新预告；中性分", "capexArr": "新能源需求→材料、设备与整车", "institution": "E0 未核验", "action": "观察；等待收盘触发", "confidence": "中低（行情完整；业绩/估值/持仓缺）"}], "rankings": [{"rank": 1, "stock": "中际旭创（300308）", "role": "相对强弱观察", "boardRule": "非主板仅观察", "logic": "AI CapEx→高速光互联；当日相对组内中位+6.11pct。", "upgrade": "所属组连续两日正超额、核心结构稳定，且该标的收盘触发通过。", "downgrade": "继续跑输组内中位、放量破位，或触发退潮/事件硬约束。"}, {"rank": 2, "stock": "新易盛（300502）", "role": "相对强弱观察", "boardRule": "非主板仅观察", "logic": "AI CapEx→高速光互联；当日相对组内中位+4.88pct。", "upgrade": "所属组连续两日正超额、核心结构稳定，且该标的收盘触发通过。", "downgrade": "继续跑输组内中位、放量破位，或触发退潮/事件硬约束。"}, {"rank": 3, "stock": "北方华创（002371）", "role": "普通观察", "boardRule": "主板优先通过", "logic": "国产替代/扩产→设备、芯片与封测；当日相对组内中位+1.20pct。", "upgrade": "所属组连续两日正超额、核心结构稳定，且该标的收盘触发通过。", "downgrade": "继续跑输组内中位、放量破位，或触发退潮/事件硬约束。"}, {"rank": 4, "stock": "XD澜起科（688008）", "role": "相对强弱观察", "boardRule": "非主板仅观察", "logic": "国产替代/扩产→设备、芯片与封测；当日相对组内中位+3.30pct。", "upgrade": "所属组连续两日正超额、核心结构稳定，且该标的收盘触发通过。", "downgrade": "继续跑输组内中位、放量破位，或触发退潮/事件硬约束。"}, {"rank": 5, "stock": "拓荆科技（688072）", "role": "普通观察", "boardRule": "非主板仅观察", "logic": "国产替代/扩产→设备、芯片与封测；当日相对组内中位+1.11pct。", "upgrade": "所属组连续两日正超额、核心结构稳定，且该标的收盘触发通过。", "downgrade": "继续跑输组内中位、放量破位，或触发退潮/事件硬约束。"}, {"rank": 6, "stock": "中际联合（605305）", "role": "相对强弱观察", "boardRule": "主板优先通过", "logic": "装机与出口→设备订单；当日相对组内中位+5.47pct。", "upgrade": "所属组连续两日正超额、核心结构稳定，且该标的收盘触发通过。", "downgrade": "继续跑输组内中位、放量破位，或触发退潮/事件硬约束。"}, {"rank": 7, "stock": "华工科技（000988）", "role": "普通观察", "boardRule": "主板优先通过", "logic": "AI CapEx→高速光互联；当日相对组内中位+1.05pct。", "upgrade": "所属组连续两日正超额、核心结构稳定，且该标的收盘触发通过。", "downgrade": "继续跑输组内中位、放量破位，或触发退潮/事件硬约束。"}, {"rank": 8, "stock": "上海新阳（300236）", "role": "相对强弱观察", "boardRule": "非主板仅观察", "logic": "国产替代/扩产→设备、芯片与封测；当日相对组内中位+6.08pct。", "upgrade": "所属组连续两日正超额、核心结构稳定，且该标的收盘触发通过。", "downgrade": "继续跑输组内中位、放量破位，或触发退潮/事件硬约束。"}, {"rank": 9, "stock": "宁德时代（300750）", "role": "普通观察", "boardRule": "非主板仅观察", "logic": "新能源需求→材料、设备与整车；当日相对组内中位-1.71pct。", "upgrade": "所属组连续两日正超额、核心结构稳定，且该标的收盘触发通过。", "downgrade": "继续跑输组内中位、放量破位，或触发退潮/事件硬约束。"}, {"rank": 10, "stock": "光迅科技（002281）", "role": "普通观察", "boardRule": "主板优先通过", "logic": "AI CapEx→高速光互联；当日相对组内中位-1.11pct。", "upgrade": "所属组连续两日正超额、核心结构稳定，且该标的收盘触发通过。", "downgrade": "继续跑输组内中位、放量破位，或触发退潮/事件硬约束。"}, {"rank": 11, "stock": "瑞芯微（603893）", "role": "相对强弱观察", "boardRule": "主板优先通过", "logic": "国产替代/扩产→设备、芯片与封测；当日相对组内中位+4.17pct。", "upgrade": "所属组连续两日正超额、核心结构稳定，且该标的收盘触发通过。", "downgrade": "继续跑输组内中位、放量破位，或触发退潮/事件硬约束。"}, {"rank": 12, "stock": "C长鑫（688825）", "role": "相对强弱观察", "boardRule": "非主板仅观察", "logic": "国产替代/扩产→设备、芯片与封测；当日相对组内中位+15.06pct。", "upgrade": "所属组连续两日正超额、核心结构稳定，且该标的收盘触发通过。", "downgrade": "继续跑输组内中位、放量破位，或触发退潮/事件硬约束。"}, {"rank": 13, "stock": "金山办公（688111）", "role": "普通观察", "boardRule": "非主板仅观察", "logic": "模型能力→软件商业化/ARR待验证；当日相对组内中位+1.12pct。", "upgrade": "所属组连续两日正超额、核心结构稳定，且该标的收盘触发通过。", "downgrade": "继续跑输组内中位、放量破位，或触发退潮/事件硬约束。"}, {"rank": 14, "stock": "中航光电（002179）", "role": "相对强弱观察", "boardRule": "主板优先通过", "logic": "AI CapEx→高速光互联；当日相对组内中位+3.68pct。", "upgrade": "所属组连续两日正超额、核心结构稳定，且该标的收盘触发通过。", "downgrade": "继续跑输组内中位、放量破位，或触发退潮/事件硬约束。"}, {"rank": 15, "stock": "天孚通信（300394）", "role": "普通观察", "boardRule": "非主板仅观察", "logic": "AI CapEx→高速光互联；当日相对组内中位+1.66pct。", "upgrade": "所属组连续两日正超额、核心结构稳定，且该标的收盘触发通过。", "downgrade": "继续跑输组内中位、放量破位，或触发退潮/事件硬约束。"}, {"rank": 16, "stock": "恒生科技ETF华夏（513180）", "role": "相对强弱观察", "boardRule": "ETF豁免主板规则", "logic": "港股科技指数暴露；当日相对组内中位+3.19pct。", "upgrade": "所属组连续两日正超额、核心结构稳定，且该标的收盘触发通过。", "downgrade": "继续跑输组内中位、放量破位，或触发退潮/事件硬约束。"}, {"rank": 17, "stock": "传媒ETF广发（512980）", "role": "相对强弱观察", "boardRule": "ETF豁免主板规则", "logic": "模型能力→软件商业化/ARR待验证；当日相对组内中位+2.43pct。", "upgrade": "所属组连续两日正超额、核心结构稳定，且该标的收盘触发通过。", "downgrade": "继续跑输组内中位、放量破位，或触发退潮/事件硬约束。"}, {"rank": 18, "stock": "三花智控（002050）", "role": "普通观察", "boardRule": "主板优先通过", "logic": "产业化→订单→收入待验证；当日相对组内中位+0.00pct。", "upgrade": "所属组连续两日正超额、核心结构稳定，且该标的收盘触发通过。", "downgrade": "继续跑输组内中位、放量破位，或触发退潮/事件硬约束。"}, {"rank": 19, "stock": "国瓷材料（300285）", "role": "相对强弱观察", "boardRule": "非主板仅观察", "logic": "国产替代/扩产→设备、芯片与封测；当日相对组内中位+7.19pct。", "upgrade": "所属组连续两日正超额、核心结构稳定，且该标的收盘触发通过。", "downgrade": "继续跑输组内中位、放量破位，或触发退潮/事件硬约束。"}, {"rank": 20, "stock": "中国卫通（601698）", "role": "普通观察", "boardRule": "主板优先通过", "logic": "政策/订单→卫星与军工收入待验证；当日相对组内中位+0.32pct。", "upgrade": "所属组连续两日正超额、核心结构稳定，且该标的收盘触发通过。", "downgrade": "继续跑输组内中位、放量破位，或触发退潮/事件硬约束。"}], "tiers": [{"tier": "第一梯队｜相对强势观察", "assets": "中际旭创、新易盛、北方华创、XD澜起科、拓荆科技", "basis": "仅按最新公开行情和模型横向排序；非买入建议。", "upgrade": "连续两日正超额、板块广度改善、公告/业绩无反证。", "downgrade": "相对强度消失、放量破位或触发退潮。", "action": "观察；未通过交易触发不新增。"}, {"tier": "第二梯队｜板块修复观察", "assets": "半导体设备/封测、光模块、AI应用内的相对强势代表", "basis": "产业链地位可研究，但对应板块并未完成收盘确认。", "upgrade": "ETF与核心同步止跌，连续正超额。", "downgrade": "继续负超额和核心补跌。", "action": "等待右侧确认。"}, {"tier": "第三梯队｜低位轮动观察", "assets": "金融科技、新能源、MLCC、机器人、资源/黄金", "basis": "组内当日相对较强，但不满足发酵阶段的时间与成交验证。", "upgrade": "连续2日扩散且ETF/核心同向。", "downgrade": "次日回落或仅少数个股拉动。", "action": "仅作主题温度计。"}, {"tier": "硬约束｜冻结新增", "assets": "跌停样本、退潮组、高拥挤/数据不足标的", "basis": "硬否决优先于总分。", "upgrade": "结构止跌、时间验证、事件风险解除后重新评分。", "downgrade": "连续跌停、放量破位或A级反证。", "action": "不抄底、不追高。"}], "institutions": [{"stock": "全池个股与ETF", "level": "E0", "evidence": "本轮只取得公开行情字段，未核验最新基金持仓、龙虎榜机构席位、ETF份额或大宗交易。", "proves": "只能证明价格、成交额和换手等行情事实。", "notProves": "不能证明机构增配/减配或主力资金方向。", "cutoff": "2026-07-29"}, {"stock": "公司业绩与中报预期", "level": "E0", "evidence": "未逐家公司抓取巨潮/交易所最新预告和财报。", "proves": "不能对利润兑现做高置信评分。", "notProves": "产业题材和股价不能替代订单、收入或利润事实。", "cutoff": "待补"}, {"stock": "ETF组", "level": "E0", "evidence": "未取得正式份额变化、前十大权重、折溢价与跟踪误差。", "proves": "产品二级市场行情。", "notProves": "不能推断机构申购或真实净流入。", "cutoff": "待补"}], "risks": [{"asset": "AI算力/服务器", "primary": "AI资本开支", "secondary": "科技成长估值", "exposure": "13只个股", "correlation": "压力期高", "limit": "单产业链≤30%", "action": "紫光、浪潮等同因子合并计算；冻结同质新增"}, {"asset": "光模块/高速连接", "primary": "高速互联", "secondary": "海外CapEx/拥挤", "exposure": "10只个股", "correlation": "组内中等偏高", "limit": "拥挤度≥8冻结新增", "action": "等待组内由跌转正和核心收盘确认"}, {"asset": "半导体/封测/设备", "primary": "芯片周期", "secondary": "科创高波动", "exposure": "21只个股+3只ETF", "correlation": "压力期高", "limit": "ETF与个股合并", "action": "不把多只芯片票视为分散"}, {"asset": "PCB/元件", "primary": "服务器升级", "secondary": "高Beta", "exposure": "11只个股", "correlation": "PCB组全数下跌", "limit": "退潮组冻结新增", "action": "停止左侧摊低成本"}, {"asset": "资源/黄金", "primary": "商品价格", "secondary": "避险轮动", "exposure": "14只个股+ETF", "correlation": "与成长阶段性低", "limit": "观察仓", "action": "单日强势不升级为主升"}], "advice": [{"label": "结论先行", "asset": "市场：高位分歧；科技链：分化/局部退潮", "condition": "F：上证+0.40%、深成指+1.10%、创业板+1.55%，但服务器、半导体与PCB组仍为负超额。", "tone": "orange"}, {"label": "风险容量", "asset": "全池", "condition": "未提供真实仓位、成本和最大回撤，不能给出具体总仓位。对退潮组和跌停标的，风险容量不通过新增。", "tone": "red"}, {"label": "交易触发", "asset": "相对强势候选", "condition": "必须同时出现板块连续正超额、核心收盘止跌、个股相对组内转强；未满足前只观察。", "tone": "blue"}, {"label": "前五观察", "asset": "中际旭创、新易盛、北方华创、XD澜起科、拓荆科技", "condition": "仅为当前数据覆盖下的横向排序；业绩、机构证据与估值缺失，不能据此直接买入。", "tone": "green"}, {"label": "禁止动作", "asset": "跌停/退潮组与高拥挤标的", "condition": "不追涨、不在首次跌停/急跌日摊低成本；ETF与个股同主题暴露合并计算。", "tone": "red"}, {"label": "数据缺口", "asset": "全部池", "condition": "市场广度、正式ETF份额、前十大权重、估值、最新中报预期、龙虎榜/基金持仓未完整核验；评分置信度统一降为中低。", "tone": "orange"}], "calibration": [{"metric": "方向命中率", "sample": 0, "value": "—", "target": "20个冻结预测", "status": "样本不足", "adjustment": "从本报告起冻结Key与观察期限"}, {"metric": "个股超额收益", "sample": 1, "value": "样本池上涨54 / 下跌53", "target": "相对板块与基准", "status": "单日不可校准", "adjustment": "20日后按组和阶段复核"}, {"metric": "Brier Score", "sample": 0, "value": "—", "target": "越低越好", "status": "概率样本不足", "adjustment": "按情景记录后计算"}, {"metric": "数据覆盖", "sample": 123, "value": "行情字段100%；基本面低", "target": "核心维度≥75%", "status": "中低置信", "adjustment": "补充公告、业绩、估值和机构证据"}], "universe": [{"type": "ETF", "group": "AI应用/传媒", "asset": "科创创业人工智能ETF富国（159022）", "close": 0.995, "pct": 0.3, "turnover": 15.11, "volumeRatio": 1.09, "status": "普通观察/回避新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "ETF", "group": "AI应用/传媒", "asset": "传媒ETF广发（512980）", "close": 0.795, "pct": 3.11, "turnover": 5.9, "volumeRatio": 1.06, "status": "普通观察/回避新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "ETF", "group": "人形机器人", "asset": "机器人ETF华夏（562500）", "close": 0.926, "pct": 0.33, "turnover": 4.17, "volumeRatio": 1.3, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "ETF", "group": "半导体设备/芯片/封测", "asset": "半导体设备ETF国泰（159516）", "close": 0.706, "pct": -1.94, "turnover": 17.46, "volumeRatio": 1.25, "status": "等待止跌；不新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "ETF", "group": "半导体设备/芯片/封测", "asset": "芯片ETF华夏（159995）", "close": 1.152, "pct": -2.04, "turnover": 5.23, "volumeRatio": 1.36, "status": "等待止跌；不新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "ETF", "group": "半导体设备/芯片/封测", "asset": "科创芯片ETF嘉实（588200）", "close": 1.167, "pct": -0.68, "turnover": 10.64, "volumeRatio": 0.96, "status": "等待止跌；不新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "ETF", "group": "商业航天/卫星", "asset": "卫星ETF永赢（159206）", "close": 1.264, "pct": 0.8, "turnover": 3.75, "volumeRatio": 0.9, "status": "普通观察/回避新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "ETF", "group": "恒生科技", "asset": "恒生科技ETF华夏（513180）", "close": 0.615, "pct": 3.19, "turnover": 9.28, "volumeRatio": 1.35, "status": "普通观察/回避新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "ETF", "group": "资源/黄金", "asset": "黄金ETF华安（518880）", "close": 8.392, "pct": -0.1, "turnover": 2.51, "volumeRatio": 0.73, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "ETF", "group": "金融科技", "asset": "金融科技ETF华宝（159851）", "close": 0.601, "pct": 2.74, "turnover": 4.16, "volumeRatio": 1.32, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "指数", "group": "主要指数", "asset": "上证指数（000001）", "close": 3828.47, "pct": 0.4, "turnover": 1.18, "volumeRatio": 1.06, "status": "市场基准", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "指数", "group": "主要指数", "asset": "沪深300（000300）", "close": 4600.26, "pct": 0.67, "turnover": 0.74, "volumeRatio": 1.06, "status": "市场基准", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "指数", "group": "主要指数", "asset": "科创50（000688）", "close": 1678.74, "pct": -0.87, "turnover": 2.03, "volumeRatio": 1.19, "status": "市场基准", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "指数", "group": "主要指数", "asset": "中证1000（000852）", "close": 7095.19, "pct": 0.98, "turnover": 2.74, "volumeRatio": 1.11, "status": "市场基准", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "指数", "group": "主要指数", "asset": "深证成指（399001）", "close": 13658.44, "pct": 1.1, "turnover": 2.76, "volumeRatio": 1.12, "status": "市场基准", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "指数", "group": "主要指数", "asset": "创业板指（399006）", "close": 3378.7, "pct": 1.55, "turnover": 3.7, "volumeRatio": 1.12, "status": "市场基准", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "AI应用/传媒", "asset": "视觉中国（000681）", "close": 16.87, "pct": 0.66, "turnover": 4.47, "volumeRatio": 1.18, "status": "普通观察/回避新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "AI应用/传媒", "asset": "京东方Ａ（000725）", "close": 5.71, "pct": 2.33, "turnover": 4.87, "volumeRatio": 0.96, "status": "普通观察/回避新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "AI应用/传媒", "asset": "国脉科技（002093）", "close": 6.76, "pct": 1.96, "turnover": 1.73, "volumeRatio": 1.07, "status": "普通观察/回避新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "AI应用/传媒", "asset": "证通电子（002197）", "close": 6.62, "pct": -0.6, "turnover": 12.33, "volumeRatio": 0.81, "status": "普通观察/回避新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "AI应用/传媒", "asset": "润建股份（002929）", "close": 47.26, "pct": -4.25, "turnover": 6.61, "volumeRatio": 1.01, "status": "普通观察/回避新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "AI应用/传媒", "asset": "芒果超媒（300413）", "close": 15.68, "pct": 2.69, "turnover": 1.95, "volumeRatio": 1.24, "status": "普通观察/回避新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "AI应用/传媒", "asset": "昆仑万维（300418）", "close": 36.83, "pct": -2.07, "turnover": 5.57, "volumeRatio": 1.07, "status": "普通观察/回避新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "AI应用/传媒", "asset": "深信服（300454）", "close": 103.22, "pct": 0.7, "turnover": 5.07, "volumeRatio": 0.73, "status": "普通观察/回避新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "AI应用/传媒", "asset": "中科创达（300496）", "close": 59, "pct": 2.08, "turnover": 3.29, "volumeRatio": 0.89, "status": "普通观察/回避新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "AI应用/传媒", "asset": "弘信电子（300657）", "close": 31.25, "pct": -0.6, "turnover": 4.94, "volumeRatio": 0.93, "status": "普通观察/回避新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "AI应用/传媒", "asset": "软通动力（301236）", "close": 35.39, "pct": 0.28, "turnover": 1.96, "volumeRatio": 0.6, "status": "普通观察/回避新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "AI应用/传媒", "asset": "宏景科技（301396）", "close": 149, "pct": -6.89, "turnover": 11.66, "volumeRatio": 1.03, "status": "普通观察/回避新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "AI应用/传媒", "asset": "用友网络（600588）", "close": 9.73, "pct": 2.1, "turnover": 2.15, "volumeRatio": 1.27, "status": "普通观察/回避新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "AI应用/传媒", "asset": "金山办公（688111）", "close": 245.58, "pct": 1.8, "turnover": 2.64, "volumeRatio": 1.35, "status": "普通观察/回避新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "AI算力/服务器/数据中心", "asset": "神州数码（000034）", "close": 25.32, "pct": -1.97, "turnover": 6.26, "volumeRatio": 0.68, "status": "冻结新增；持仓复核", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "AI算力/服务器/数据中心", "asset": "紫光股份（000938）", "close": 37.33, "pct": -10, "turnover": 12.22, "volumeRatio": 0.8, "status": "冻结新增；持仓复核", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "AI算力/服务器/数据中心", "asset": "浪潮信息（000977）", "close": 74.94, "pct": -6.15, "turnover": 7.18, "volumeRatio": 0.84, "status": "冻结新增；持仓复核", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "AI算力/服务器/数据中心", "asset": "拓维信息（002261）", "close": 26.26, "pct": -1.32, "turnover": 4.72, "volumeRatio": 0.85, "status": "冻结新增；持仓复核", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "AI算力/服务器/数据中心", "asset": "网宿科技（300017）", "close": 12.54, "pct": -2.79, "turnover": 6.02, "volumeRatio": 0.99, "status": "冻结新增；持仓复核", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "AI算力/服务器/数据中心", "asset": "申菱环境（301018）", "close": 77.55, "pct": -1.44, "turnover": 8.31, "volumeRatio": 1.47, "status": "冻结新增；持仓复核", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "AI算力/服务器/数据中心", "asset": "云赛智联（600602）", "close": 16.94, "pct": -2.02, "turnover": 4.35, "volumeRatio": 0.65, "status": "冻结新增；持仓复核", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "AI算力/服务器/数据中心", "asset": "浪潮软件（600756）", "close": 15.88, "pct": 3.18, "turnover": 20.15, "volumeRatio": 2.24, "status": "冻结新增；持仓复核", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "AI算力/服务器/数据中心", "asset": "中科曙光（603019）", "close": 86.64, "pct": -5.93, "turnover": 5.13, "volumeRatio": 0.95, "status": "冻结新增；持仓复核", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "AI算力/服务器/数据中心", "asset": "中贝通信（603220）", "close": 18.19, "pct": -0.66, "turnover": 3.44, "volumeRatio": 0.89, "status": "冻结新增；持仓复核", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "AI算力/服务器/数据中心", "asset": "恒为科技（603496）", "close": 25.48, "pct": 2.25, "turnover": 7.1, "volumeRatio": 0.76, "status": "冻结新增；持仓复核", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "AI算力/服务器/数据中心", "asset": "利通电子（603629）", "close": 96.95, "pct": -6.37, "turnover": 9.83, "volumeRatio": 0.9, "status": "冻结新增；持仓复核", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "AI算力/服务器/数据中心", "asset": "数据港（603881）", "close": 24.11, "pct": 0.75, "turnover": 4.03, "volumeRatio": 0.8, "status": "冻结新增；持仓复核", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "人形机器人", "asset": "三花智控（002050）", "close": 36.02, "pct": 1.24, "turnover": 1.57, "volumeRatio": 0.87, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "人形机器人", "asset": "双环传动（002472）", "close": 36.2, "pct": 1.6, "turnover": 3.18, "volumeRatio": 1.18, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "人形机器人", "asset": "埃斯顿（002747）", "close": 31.06, "pct": 2.37, "turnover": 11.32, "volumeRatio": 1.22, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "人形机器人", "asset": "先导智能（300450）", "close": 33.41, "pct": 1.15, "turnover": 2.74, "volumeRatio": 0.99, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "人形机器人", "asset": "绿的谐波（688017）", "close": 283.66, "pct": -3.2, "turnover": 5.72, "volumeRatio": 1.31, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "元件/MLCC", "asset": "风华高科（000636）", "close": 47.51, "pct": 10, "turnover": 14.92, "volumeRatio": 1.29, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "元件/MLCC", "asset": "博迁新材（605376）", "close": 144.58, "pct": 5.93, "turnover": 8.33, "volumeRatio": 1.5, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "元件/PCB/MLCC", "asset": "广合科技（001389）", "close": 146, "pct": -3.16, "turnover": 7.84, "volumeRatio": 1.46, "status": "冻结新增；持仓复核", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "元件/PCB/MLCC", "asset": "东山精密（002384）", "close": 179.78, "pct": -5.73, "turnover": 9.23, "volumeRatio": 1.33, "status": "冻结新增；持仓复核", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "元件/PCB/MLCC", "asset": "沪电股份（002463）", "close": 105.25, "pct": -0.47, "turnover": 4.05, "volumeRatio": 1.42, "status": "冻结新增；持仓复核", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "元件/PCB/MLCC", "asset": "崇达技术（002815）", "close": 11.39, "pct": -0.44, "turnover": 4.93, "volumeRatio": 0.89, "status": "冻结新增；持仓复核", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "元件/PCB/MLCC", "asset": "深南电路（002916）", "close": 316.01, "pct": -0.66, "turnover": 2.33, "volumeRatio": 1.61, "status": "冻结新增；持仓复核", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "元件/PCB/MLCC", "asset": "胜宏科技（300476）", "close": 201.61, "pct": -4.08, "turnover": 5.02, "volumeRatio": 1.49, "status": "冻结新增；持仓复核", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "元件/PCB/MLCC", "asset": "中富电路（300814）", "close": 116.77, "pct": -3.42, "turnover": 5, "volumeRatio": 1.26, "status": "冻结新增；持仓复核", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "元件/PCB/MLCC", "asset": "大族数控（301200）", "close": 230.56, "pct": -2.44, "turnover": 0.79, "volumeRatio": 0.89, "status": "冻结新增；持仓复核", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "元件/PCB/MLCC", "asset": "生益科技（600183）", "close": 108.18, "pct": -4.59, "turnover": 3.68, "volumeRatio": 1.43, "status": "冻结新增；持仓复核", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "光模块/高速连接", "asset": "华工科技（000988）", "close": 100.26, "pct": -0.32, "turnover": 6.4, "volumeRatio": 1.25, "status": "等待止跌；不新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "光模块/高速连接", "asset": "中航光电（002179）", "close": 33.67, "pct": 2.31, "turnover": 1.1, "volumeRatio": 0.97, "status": "等待止跌；不新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "光模块/高速连接", "asset": "光迅科技（002281）", "close": 169.26, "pct": -2.48, "turnover": 5.58, "volumeRatio": 1.09, "status": "等待止跌；不新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "光模块/高速连接", "asset": "意华股份（002897）", "close": 54.97, "pct": -2.76, "turnover": 5.99, "volumeRatio": 0.8, "status": "等待止跌；不新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "光模块/高速连接", "asset": "中际旭创（300308）", "close": 951, "pct": 4.74, "turnover": 4.22, "volumeRatio": 1.42, "status": "等待止跌；不新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "光模块/高速连接", "asset": "天孚通信（300394）", "close": 182.09, "pct": 0.29, "turnover": 3.98, "volumeRatio": 1.3, "status": "等待止跌；不新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "光模块/高速连接", "asset": "新易盛（300502）", "close": 421.2, "pct": 3.51, "turnover": 5.18, "volumeRatio": 1.28, "status": "等待止跌；不新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "光模块/高速连接", "asset": "菲菱科思（301191）", "close": 93.9, "pct": -8.39, "turnover": 9.52, "volumeRatio": 0.8, "status": "等待止跌；不新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "光模块/高速连接", "asset": "华丰科技（688629）", "close": 134.46, "pct": -2.42, "turnover": 4.63, "volumeRatio": 0.99, "status": "等待止跌；不新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "光模块/高速连接", "asset": "盛科通信-U（688702）", "close": 351.42, "pct": -2.65, "turnover": 6.78, "volumeRatio": 1.03, "status": "等待止跌；不新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "半导体设备/芯片/封测", "asset": "德明利（001309）", "close": 354.58, "pct": -1.9, "turnover": 14.97, "volumeRatio": 1.05, "status": "等待止跌；不新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "半导体设备/芯片/封测", "asset": "通富微电（002156）", "close": 62.1, "pct": -10, "turnover": 13.06, "volumeRatio": 0.87, "status": "冻结新增；持仓复核", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "半导体设备/芯片/封测", "asset": "北方华创（002371）", "close": 706.39, "pct": -1.2, "turnover": 2.18, "volumeRatio": 1, "status": "等待止跌；不新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "半导体设备/芯片/封测", "asset": "雅克科技（002409）", "close": 152.18, "pct": -8.56, "turnover": 16.23, "volumeRatio": 1.1, "status": "等待止跌；不新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "半导体设备/芯片/封测", "asset": "鼎龙股份（300054）", "close": 69.6, "pct": -2.4, "turnover": 5.92, "volumeRatio": 1.06, "status": "等待止跌；不新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "半导体设备/芯片/封测", "asset": "上海新阳（300236）", "close": 86.68, "pct": 3.68, "turnover": 5.5, "volumeRatio": 1.36, "status": "等待止跌；不新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "半导体设备/芯片/封测", "asset": "国瓷材料（300285）", "close": 59.12, "pct": 4.79, "turnover": 15.98, "volumeRatio": 1.06, "status": "等待止跌；不新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "半导体设备/芯片/封测", "asset": "有研新材（600206）", "close": 39.86, "pct": -8.37, "turnover": 13.43, "volumeRatio": 0.92, "status": "等待止跌；不新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "半导体设备/芯片/封测", "asset": "长电科技（600584）", "close": 71.68, "pct": -6.7, "turnover": 9.34, "volumeRatio": 0.95, "status": "等待止跌；不新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "半导体设备/芯片/封测", "asset": "太极实业（600667）", "close": 17.4, "pct": -5.28, "turnover": 20.58, "volumeRatio": 1.45, "status": "等待止跌；不新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "半导体设备/芯片/封测", "asset": "至纯科技（603690）", "close": 24.77, "pct": -4.73, "turnover": 22.13, "volumeRatio": 2.03, "status": "冻结新增；持仓复核", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "半导体设备/芯片/封测", "asset": "瑞芯微（603893）", "close": 203.05, "pct": 1.77, "turnover": 5.81, "volumeRatio": 0.77, "status": "等待止跌；不新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "半导体设备/芯片/封测", "asset": "兆易创新（603986）", "close": 364.03, "pct": -6.81, "turnover": 13.52, "volumeRatio": 1.61, "status": "等待止跌；不新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "半导体设备/芯片/封测", "asset": "XD澜起科（688008）", "close": 207.5, "pct": 0.9, "turnover": 5.56, "volumeRatio": 1, "status": "等待止跌；不新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "半导体设备/芯片/封测", "asset": "中微公司（688012）", "close": 360, "pct": -6.01, "turnover": 4.01, "volumeRatio": 1.38, "status": "等待止跌；不新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "半导体设备/芯片/封测", "asset": "海光信息（688041）", "close": 284, "pct": -4.79, "turnover": 1.31, "volumeRatio": 1.22, "status": "等待止跌；不新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "半导体设备/芯片/封测", "asset": "拓荆科技（688072）", "close": 700.87, "pct": -1.29, "turnover": 3.33, "volumeRatio": 1.02, "status": "等待止跌；不新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "半导体设备/芯片/封测", "asset": "寒武纪（688256）", "close": 1146.9, "pct": 1.68, "turnover": 2.27, "volumeRatio": 1.28, "status": "等待止跌；不新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "半导体设备/芯片/封测", "asset": "有研硅（688432）", "close": 36.07, "pct": -9.8, "turnover": 5.16, "volumeRatio": 1.15, "status": "冻结新增；持仓复核", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "半导体设备/芯片/封测", "asset": "正帆科技（688596）", "close": 54.71, "pct": 11.27, "turnover": 15.48, "volumeRatio": 1.3, "status": "冻结新增；持仓复核", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "半导体设备/芯片/封测", "asset": "C长鑫（688825）", "close": 52.95, "pct": 12.66, "turnover": 20.04, "volumeRatio": 0.46, "status": "等待止跌；不新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "商业航天/卫星", "asset": "航天发展（000547）", "close": 14.18, "pct": 0.07, "turnover": 3.42, "volumeRatio": 0.59, "status": "普通观察/回避新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "商业航天/卫星", "asset": "高德红外（002414）", "close": 13.91, "pct": 1.09, "turnover": 3.3, "volumeRatio": 0.79, "status": "普通观察/回避新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "商业航天/卫星", "asset": "中国卫星（600118）", "close": 57.69, "pct": -0.43, "turnover": 2.24, "volumeRatio": 0.74, "status": "普通观察/回避新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "商业航天/卫星", "asset": "中国卫通（601698）", "close": 25.17, "pct": 0.72, "turnover": 0.44, "volumeRatio": 0.72, "status": "普通观察/回避新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "新能源", "asset": "国轩高科（002074）", "close": 28.29, "pct": 4.62, "turnover": 2.65, "volumeRatio": 1.43, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "新能源", "asset": "比亚迪（002594）", "close": 94.85, "pct": 1.61, "turnover": 1.48, "volumeRatio": 1.42, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "新能源", "asset": "麦格米特（002851）", "close": 107.52, "pct": -8.55, "turnover": 8.36, "volumeRatio": 1.58, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "新能源", "asset": "当升科技（300073）", "close": 41.56, "pct": 2.44, "turnover": 3.32, "volumeRatio": 1.16, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "新能源", "asset": "新雷能（300593）", "close": 23.69, "pct": 4.45, "turnover": 6.06, "volumeRatio": 0.97, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "新能源", "asset": "宁德时代（300750）", "close": 396.84, "pct": 1.53, "turnover": 0.95, "volumeRatio": 1.14, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "新能源", "asset": "容百科技（688005）", "close": 27.76, "pct": 4.4, "turnover": 2.59, "volumeRatio": 1.22, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "新能源", "asset": "厦钨新能（688778）", "close": 46.33, "pct": 4.04, "turnover": 1.67, "volumeRatio": 1.37, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "电力设备/风电", "asset": "立新能源（001258）", "close": 11.61, "pct": -10, "turnover": 19.39, "volumeRatio": 1.39, "status": "冻结新增；持仓复核", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "电力设备/风电", "asset": "华银电力（600744）", "close": 7.11, "pct": -3.4, "turnover": 13.97, "volumeRatio": 0.79, "status": "普通观察/回避新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "电力设备/风电", "asset": "东方电气（600875）", "close": 25.49, "pct": 2.45, "turnover": 1.93, "volumeRatio": 0.83, "status": "普通观察/回避新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "电力设备/风电", "asset": "中际联合（605305）", "close": 39.9, "pct": 5, "turnover": 2.62, "volumeRatio": 1.28, "status": "普通观察/回避新增", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "资源/黄金", "asset": "盛达资源（000603）", "close": 25, "pct": 3.86, "turnover": 8.12, "volumeRatio": 0.83, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "资源/黄金", "asset": "东方钽业（000962）", "close": 45.31, "pct": -1.54, "turnover": 4.72, "volumeRatio": 1.12, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "资源/黄金", "asset": "格林美（002340）", "close": 6.69, "pct": 2.92, "turnover": 2.82, "volumeRatio": 1.43, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "资源/黄金", "asset": "多氟多（002407）", "close": 31.99, "pct": -6.46, "turnover": 19.19, "volumeRatio": 1.14, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "资源/黄金", "asset": "天赐材料（002709）", "close": 36.79, "pct": -1.34, "turnover": 5.29, "volumeRatio": 1.01, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "资源/黄金", "asset": "腾远钴业（301219）", "close": 44.83, "pct": 3.53, "turnover": 3.3, "volumeRatio": 1.15, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "资源/黄金", "asset": "金发科技（600143）", "close": 14.55, "pct": 1.89, "turnover": 1.2, "volumeRatio": 0.99, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "资源/黄金", "asset": "山东黄金（600547）", "close": 27.33, "pct": 2.74, "turnover": 1.69, "volumeRatio": 0.72, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "资源/黄金", "asset": "西部矿业（601168）", "close": 36.91, "pct": 0.14, "turnover": 2.71, "volumeRatio": 0.69, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "资源/黄金", "asset": "紫金矿业（601899）", "close": 32.15, "pct": 1.45, "turnover": 1.05, "volumeRatio": 0.6, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "资源/黄金", "asset": "中曼石油（603619）", "close": 21.32, "pct": 1.48, "turnover": 11.98, "volumeRatio": 1.03, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "资源/黄金", "asset": "三祥新材（603663）", "close": 37, "pct": -2.61, "turnover": 2.77, "volumeRatio": 0.9, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "资源/黄金", "asset": "华友钴业（603799）", "close": 40.3, "pct": 2.6, "turnover": 3.26, "volumeRatio": 0.92, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "资源/黄金", "asset": "九丰能源（605090）", "close": 32.18, "pct": 1.45, "turnover": 2.49, "volumeRatio": 0.77, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "金融科技", "asset": "同花顺（300033）", "close": 224, "pct": 4.68, "turnover": 4.5, "volumeRatio": 1.65, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "金融科技", "asset": "东方财富（300059）", "close": 19.9, "pct": 2.47, "turnover": 2.31, "volumeRatio": 1.27, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}, {"type": "个股", "group": "金融科技", "asset": "恒生电子（600570）", "close": 21.87, "pct": 2.58, "turnover": 2.37, "volumeRatio": 1.84, "status": "观察；等待收盘触发", "source": "B（公开行情原始字段；非机构资金证据）"}], "sources": [{"source": "东方财富公开行情接口", "grade": "B", "supports": "2026-07-29收盘价、涨跌幅、成交额、换手率及历史区间收益；不用于机构资金判断。", "url": "https://push2.eastmoney.com/api/qt/ulist.np/get"}, {"source": "东方财富历史K线公开接口", "grade": "B", "supports": "5/20/60日收益、20日量额相对指标与回撤计算。", "url": "https://push2his.eastmoney.com/api/qt/stock/kline/get"}, {"source": "巨潮资讯/交易所公告", "grade": "A", "supports": "本报告标记为待补的中报、公告、回购、减持与事件风险核验入口。", "url": "https://www.cninfo.com.cn/"}]};
+
+    const $ = (id) => document.getElementById(id);
+    const esc = (value) => String(value ?? "—")
+      .replaceAll("&", "&amp;").replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+    const toneClass = (tone) => ["green","orange","red"].includes(tone) ? tone : "";
+    const showToast = (text) => {
+      $("toast").textContent = text;
+      $("toast").classList.add("show");
+      setTimeout(() => $("toast").classList.remove("show"), 1800);
+    };
+    const table = (id, columns, rows) => {
+      const colClass = key => `col-${String(key || "").replace(/[^a-z0-9_-]/gi, "")}`;
+      const tileKeys = new Set(["sector", "direction", "group", "stock", "etf", "asset", "stage", "status", "role", "action"]);
+      const head = `<thead><tr>${columns.map(c => `<th class="${colClass(c.key)}">${esc(c.label)}</th>`).join("")}</tr></thead>`;
+      const body = rows.length
+        ? rows.map(row => `<tr>${columns.map(c => {
+            const content = c.render ? c.render(row[c.key], row) : esc(row[c.key]);
+            const wrapped = tileKeys.has(c.key) ? `<span class="cell-tile">${content}</span>` : content;
+            return `<td class="${colClass(c.key)}" data-label="${esc(c.label)}">${wrapped}</td>`;
+          }).join("")}</tr>`).join("")
+        : `<tr><td colspan="${columns.length}" class="empty">暂无已核验数据</td></tr>`;
+      $(id).innerHTML = head + `<tbody>${body}</tbody>`;
+    };
+
+    const moveTone = value => {
+      const n = Number.parseFloat(String(value ?? "").replace(/[%+,]/g, ""));
+      return Number.isFinite(n) ? (n > 0 ? "up" : n < 0 ? "down" : "flat") : "flat";
+    };
+
+    const overviewMetric = item => {
+      if (Array.isArray(item.moves) && item.moves.length) {
+        return `<div class="market-moves">${item.moves.map(move => `
+          <span class="move-chip ${moveTone(move.value)}">
+            <span class="move-name">${esc(move.name)}</span>
+            <span class="move-value">${esc(move.value)}</span>
+          </span>`).join("")}</div>`;
+      }
+      return `<div class="metric">${esc(item.value)}</div>`;
+    };
+
+    function render() {
+      const d = REPORT_DATA || SAMPLE_DATA;
+      const m = d.meta || {};
+      document.title = `${m.title || "A股六步法 v4.8 报告"}｜${m.date || ""}`;
+      $("nav-title").textContent = m.title || "机构实战版股票分析报告";
+      $("hero-kicker").textContent = m.reportType || "研究报告";
+      $("report-title").textContent = m.title || "A股市场与股票组合分析";
+      $("report-summary").textContent = m.summary || "—";
+      $("report-date").textContent = m.date || "—";
+      $("market-state").textContent = m.marketState || "—";
+      $("mainline-stage").textContent = m.mainlineStage || "—";
+      $("risk-level").textContent = m.riskLevel || "—";
+      $("data-note").textContent = `${m.dataNote || ""} 数据截止：${m.dataCutoff || "未提供"}；置信度：${m.confidence || "未提供"}。`;
+
+      $("overview-grid").innerHTML = (d.overview || []).map(item => `
+        <article class="card">${overviewMetric(item)}
+        <div class="metric-label">${esc(item.label)} · ${esc(item.note)}</div></article>`).join("")
+        || `<article class="card span-12 empty">暂无市场总览数据</article>`;
+
+      const lc = d.lifecycle || {};
+      $("lifecycle-timeline").innerHTML = (lc.stages || []).map((stage, i) => `
+        <div class="stage ${stage === lc.active ? "active" : ""}">
+          <strong>${esc(stage)}</strong><span>阶段 ${i + 1}</span>
+        </div>`).join("");
+      $("lifecycle-cards").innerHTML = (lc.cards || []).map(item => `
+        <article class="card"><span class="chip ${toneClass(item.tone)}">${esc(item.title)}</span>
+        <p>${esc(item.text)}</p></article>`).join("");
+
+      table("sector-lifecycle-table", [
+        {key:"sector",label:"板块"},
+        {key:"avgPct",label:"组内均值"},
+        {key:"medianPct",label:"组内中位"},
+        {key:"stage",label:"阶段"},
+        {key:"support",label:"F·支持事实"},
+        {key:"counter",label:"最大反证"},
+        {key:"upgrade",label:"H·升级条件"},
+        {key:"downgrade",label:"H·降级条件"}
+      ], d.sectorLifecycle || []);
+
+      table("key-table", [
+        {key:"key",label:"Key"},
+        {key:"hypothesis",label:"H·假设"},
+        {key:"support",label:"F/C·支持"},
+        {key:"counter",label:"最大反证"},
+        {key:"confirm",label:"确认条件"},
+        {key:"falsify",label:"证伪条件"},
+        {key:"deadline",label:"最晚验证"},
+        {key:"confidence",label:"置信度"}
+      ], d.keys || []);
+
+      table("scenario-table", [
+        {key:"scenario",label:"情景"},
+        {key:"weight",label:"概率"},
+        {key:"boundary",label:"边界"},
+        {key:"impact",label:"影响"},
+        {key:"action",label:"应对"}
+      ], d.scenarios || []);
+
+      table("etf-mapping-table", [
+        {key:"etf",label:"ETF"},
+        {key:"pct",label:"7/29涨跌"},
+        {key:"turnover",label:"换手率"},
+        {key:"stage",label:"生命周期"},
+        {key:"track",label:"跟踪主题"},
+        {key:"mapped",label:"相关个股/分支"},
+        {key:"overlap",label:"重合风险"},
+        {key:"action",label:"研究动作"},
+        {key:"gap",label:"数据缺口"}
+      ], d.etfMappings || []);
+
+      table("score-table", [
+        {key:"stock",label:"股票/ETF"},
+        {key:"market",label:"市场"},
+        {key:"score",label:"总分",render:v=>`<span class="score">${esc(v)}</span>`},
+        {key:"crowding",label:"拥挤度/10"},
+        {key:"midyear",label:"中报预期"},
+        {key:"capexArr",label:"CapEx→ARR"},
+        {key:"institution",label:"机构证据"},
+        {key:"action",label:"研究动作"},
+        {key:"confidence",label:"置信度"}
+      ], d.scores || []);
+
+      table("ranking-table", [
+        {key:"rank",label:"排名",render:v=>`<span class="rank">${esc(v)}</span>`},
+        {key:"stock",label:"股票/ETF"},
+        {key:"role",label:"组合角色"},
+        {key:"boardRule",label:"主板/ETF规则"},
+        {key:"logic",label:"核心逻辑"},
+        {key:"upgrade",label:"升级条件"},
+        {key:"downgrade",label:"降级条件"}
+      ], d.rankings || []);
+
+      table("tier-table", [
+        {key:"tier",label:"梯队"},
+        {key:"assets",label:"标的"},
+        {key:"basis",label:"入选依据"},
+        {key:"upgrade",label:"升级条件"},
+        {key:"downgrade",label:"降级条件"},
+        {key:"action",label:"研究动作"}
+      ], d.tiers || []);
+
+      table("institution-table", [
+        {key:"stock",label:"股票/ETF"},
+        {key:"level",label:"等级",render:v=>`<span class="chip">${esc(v)}</span>`},
+        {key:"evidence",label:"可核验证据"},
+        {key:"proves",label:"能证明"},
+        {key:"notProves",label:"不能证明"},
+        {key:"cutoff",label:"截止时间"}
+      ], d.institutions || []);
+
+      table("risk-table", [
+        {key:"asset",label:"标的/风险簇"},
+        {key:"primary",label:"主要因子"},
+        {key:"secondary",label:"次要因子"},
+        {key:"exposure",label:"暴露"},
+        {key:"correlation",label:"压力相关性"},
+        {key:"limit",label:"上限/状态"},
+        {key:"action",label:"处理"}
+      ], d.risks || []);
+
+      $("advice-list").innerHTML = (d.advice || []).map(item => `
+        <div class="advice"><div><span class="chip ${toneClass(item.tone)}">${esc(item.label)}</span>
+        <br><strong>${esc(item.asset)}</strong></div><p>${esc(item.condition)}</p></div>`).join("")
+        || `<p class="empty">暂无条件化操作建议</p>`;
+
+      table("calibration-table", [
+        {key:"metric",label:"校准指标"},
+        {key:"sample",label:"样本数"},
+        {key:"value",label:"当前值"},
+        {key:"target",label:"目标/基准"},
+        {key:"status",label:"状态"},
+        {key:"adjustment",label:"后续调整"}
+      ], d.calibration || []);
+
+      table("universe-table", [
+        {key:"type",label:"类型"},
+        {key:"group",label:"分组"},
+        {key:"asset",label:"标的"},
+        {key:"close",label:"收盘"},
+        {key:"pct",label:"涨跌幅"},
+        {key:"turnover",label:"换手率"},
+        {key:"volumeRatio",label:"量比"},
+        {key:"status",label:"研究状态"},
+        {key:"source",label:"来源/等级"}
+      ], d.universe || []);
+
+      table("source-table", [
+        {key:"source",label:"来源"},
+        {key:"grade",label:"等级",render:v=>`<span class="chip">${esc(v)}</span>`},
+        {key:"supports",label:"支持的事实"},
+        {key:"url",label:"链接",render:v=>/^https?:\/\//.test(String(v || "")) ? `<a href="${esc(v)}" target="_blank" rel="noopener">打开原始页面</a>` : "—"}
+      ], d.sources || []);
+    }
+
+    const IS_PUBLIC_PAGE = /^https?:$/.test(window.location.protocol);
+    const toolModal = $("tool-modal");
+    const toolText = $("tool-text");
+    const toolTitle = $("tool-title");
+    const toolNote = $("tool-note");
+
+    function reportSummaryText() {
+      const m = REPORT_DATA.meta || {};
+      return `${m.title || "A股研究报告"}\n${m.date || ""}｜${m.marketState || ""}｜${m.mainlineStage || ""}｜风险${m.riskLevel || ""}\n${m.summary || ""}`;
+    }
+
+    function legacyCopyText(text) {
+      const area = document.createElement("textarea");
+      area.value = text;
+      area.setAttribute("readonly", "");
+      area.style.cssText = "position:fixed;left:-9999px;top:0";
+      document.body.appendChild(area);
+      area.select();
+      area.setSelectionRange(0, area.value.length);
+      let ok = false;
+      try { ok = document.execCommand("copy"); } catch {}
+      area.remove();
+      return ok;
+    }
+
+    async function copyTextWithFallback(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        try { await navigator.clipboard.writeText(text); return true; } catch {}
+      }
+      return legacyCopyText(text);
+    }
+
+    function safeReportFilename() {
+      const base = (REPORT_DATA.meta?.title || document.title || "A股六步法报告")
+        .replace(/[\\/:*?"<>|]+/g, "_").replace(/\s+/g, "_").slice(0, 80);
+      return `${base}.html`;
+    }
+
+    function reportHtmlText() {
+      return "<!doctype html>\n" + document.documentElement.outerHTML;
+    }
+
+    function downloadReport() {
+      const blob = new Blob([reportHtmlText()], {type: "text/html;charset=utf-8"});
+      const href = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = href;
+      link.download = safeReportFilename();
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(href), 1500);
+      showToast("HTML网页已保存");
+    }
+
+    function openToolModal(title, note, text = "") {
+      toolTitle.textContent = title;
+      toolNote.textContent = note;
+      toolText.value = text;
+      toolModal.classList.add("show");
+      toolModal.setAttribute("aria-hidden", "false");
+      document.body.classList.add("modal-open");
+      if (text) setTimeout(() => { toolText.focus(); toolText.select(); }, 60);
+    }
+
+    function closeToolModal() {
+      toolModal.classList.remove("show");
+      toolModal.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("modal-open");
+    }
+
+    $("tool-close").addEventListener("click", closeToolModal);
+    toolModal.addEventListener("click", event => { if (event.target === toolModal) closeToolModal(); });
+    document.addEventListener("keydown", event => { if (event.key === "Escape") closeToolModal(); });
+    $("tool-copy").addEventListener("click", async () => {
+      const ok = await copyTextWithFallback(toolText.value);
+      showToast(ok ? "内容已复制" : "请长按文本并手动复制");
+      if (!ok) { toolText.focus(); toolText.select(); }
+    });
+    $("tool-download").addEventListener("click", downloadReport);
+    $("tool-print").addEventListener("click", () => {
+      try { window.print(); }
+      catch { showToast("当前浏览器不支持打印，请保存HTML后用Chrome或Edge打开"); }
+    });
+
+    if (!IS_PUBLIC_PAGE) {
+      $("copy-link-btn").textContent = "保存网页";
+      $("share-btn").textContent = "分享网页文件";
+    }
+
+    $("copy-btn").addEventListener("click", async () => {
+      const text = reportSummaryText();
+      const ok = await copyTextWithFallback(text);
+      if (ok) showToast("摘要已复制");
+      else openToolModal("复制摘要", "当前浏览器阻止了自动复制，请长按或全选下面文字。", text);
+    });
+
+    $("print-btn").addEventListener("click", () => {
+      let printStarted = false;
+      const markStarted = () => { printStarted = true; };
+      window.addEventListener("beforeprint", markStarted, {once:true});
+      try { window.print(); }
+      catch {
+        openToolModal("打印 / PDF", "当前内置浏览器不支持系统打印。请先保存HTML，再用Chrome或Edge打开并选择“打印→另存为PDF”。");
+        return;
+      }
+      setTimeout(() => {
+        if (!printStarted) openToolModal("打印 / PDF", "当前内置浏览器没有打开打印界面。请保存HTML，再用Chrome或Edge打开并选择“打印→另存为PDF”。");
+      }, 900);
+    });
+
+    async function copyPageLink() {
+      const pageUrl = IS_PUBLIC_PAGE ? window.location.href : "";
+      if (!pageUrl) {
+        downloadReport();
+        openToolModal("本地报告已保存", "本地文件没有公共链接，不能把 file:// 地址发给其他手机。你可以分享刚保存的HTML文件；若要微信直接打开，必须先发布为公网HTTPS链接。", window.location.href);
+        return false;
+      }
+      const ok = await copyTextWithFallback(pageUrl);
+      if (ok) { showToast("网页链接已复制"); return true; }
+      openToolModal("复制网页链接", "浏览器阻止了自动复制，请长按或全选下面的HTTPS链接。", pageUrl);
+      return false;
+    }
+    $("copy-link-btn").addEventListener("click", copyPageLink);
+    $("share-btn").addEventListener("click", async () => {
+      const m = REPORT_DATA.meta || {};
+      const pageUrl = IS_PUBLIC_PAGE ? window.location.href : "";
+      if (!pageUrl) {
+        const htmlFile = new File([reportHtmlText()], safeReportFilename(), {type:"text/html"});
+        if (navigator.share && navigator.canShare && navigator.canShare({files:[htmlFile]})) {
+          try {
+            await navigator.share({title: m.title || document.title, text: m.summary || "A股六步法 v4.8 研究报告", files:[htmlFile]});
+            showToast("已打开文件分享");
+            return;
+          } catch (e) {
+            if (e.name === "AbortError") return;
+          }
+        }
+        downloadReport();
+        openToolModal("分享网页文件", "当前浏览器不能直接调用文件分享，HTML已下载。请在微信中选择“文件”并发送该HTML；若要一键分享链接，需要先发布为公网HTTPS页面。");
+        return;
+      }
+      const payload = {title: m.title || document.title, text: m.summary || "A股六步法 v4.8 研究报告", url: pageUrl};
+      if (navigator.share) {
+        try { await navigator.share(payload); showToast("已打开系统分享"); }
+        catch (e) { if (e.name !== "AbortError") await copyPageLink(); }
+      } else {
+        await copyPageLink();
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>
