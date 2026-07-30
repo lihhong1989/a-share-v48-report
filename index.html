@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="light">
   <meta name="theme-color" content="#f5f5f7">
-  <meta name="description" content="A股六步法 v4.8 机构实战版全池研究报告">
+<meta name="description" content="A股六步法机构实战版全池研究报告">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta property="og:title" content="A股六步法 v4.8 股票分析报告">
+<meta property="og:title" content="A股六步法股票分析报告">
   <meta property="og:description" content="市场状态、主线生命周期、ETF映射、评分与风险观察">
-  <title>A股六步法 v4.8 股票分析报告</title>
+<title>A股六步法股票分析报告</title>
   <style>
     :root {
       --bg: #f5f5f7;
@@ -406,7 +406,7 @@
   <main class="shell">
     <nav class="topbar" aria-label="报告工具">
       <div class="brand">
-        <p class="eyebrow">A股六步法 v4.8</p>
+      <p class="eyebrow">A股六步法</p>
         <p class="brand-title" id="nav-title">机构实战版股票分析报告</p>
       </div>
       <div class="actions">
@@ -679,7 +679,7 @@
     function render() {
       const d = REPORT_DATA || SAMPLE_DATA;
       const m = d.meta || {};
-      document.title = `${m.title || "A股六步法 v4.8 报告"}｜${m.date || ""}`;
+document.title = `${m.title || "A股六步法报告"}｜${m.date || ""}`;
       $("nav-title").textContent = m.title || "机构实战版股票分析报告";
       $("hero-kicker").textContent = m.reportType || "研究报告";
       $("report-title").textContent = m.title || "A股市场与股票组合分析";
@@ -961,7 +961,7 @@
         const htmlFile = new File([reportHtmlText()], safeReportFilename(), {type:"text/html"});
         if (navigator.share && navigator.canShare && navigator.canShare({files:[htmlFile]})) {
           try {
-            await navigator.share({title: m.title || document.title, text: m.summary || "A股六步法 v4.8 研究报告", files:[htmlFile]});
+      await navigator.share({title: m.title || document.title, text: m.summary || "A股六步法研究报告", files:[htmlFile]});
             showToast("已打开文件分享");
             return;
           } catch (e) {
@@ -972,7 +972,7 @@
         openToolModal("分享网页文件", "当前浏览器不能直接调用文件分享，HTML已下载。请在微信中选择“文件”并发送该HTML；若要一键分享链接，需要先发布为公网HTTPS页面。");
         return;
       }
-      const payload = {title: m.title || document.title, text: m.summary || "A股六步法 v4.8 研究报告", url: pageUrl};
+    const payload = {title: m.title || document.title, text: m.summary || "A股六步法研究报告", url: pageUrl};
       if (navigator.share) {
         try { await navigator.share(payload); showToast("已打开系统分享"); }
         catch (e) { if (e.name !== "AbortError") await copyPageLink(); }
